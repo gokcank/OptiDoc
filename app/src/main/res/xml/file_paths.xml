@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ExportRepositoryImpl'in ürettiği .txt/.pdf dosyaları yalnızca bu yolun
+    altına (getExternalFilesDir(null)/exports/) yazılır. FileProvider başka
+    hiçbir dizini paylaşıma açmaz.
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-files-path
+        name="exports"
+        path="exports/" />
+    <files-path
+        name="internal_documents"
+        path="documents/" />
+    <cache-path
+        name="cache"
+        path="." />
+</paths>

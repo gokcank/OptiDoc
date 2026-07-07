@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developers.google.com)",
+      "WebSearch",
+      "PowerShell(.\\\\gradlew.bat :app:compileDebugKotlin --console=plain 2>&1)",
+      "PowerShell(.\\\\gradlew.bat :app:compileDebugKotlin :app:testDebugUnitTest --console=plain 2>&1)",
+      "PowerShell(.\\\\gradlew.bat :app:testDebugUnitTest --console=plain 2>&1)",
+      "PowerShell(.\\\\gradlew.bat :app:compileDebugAndroidTestKotlin --console=plain 2>&1)",
+      "PowerShell(.\\\\gradlew.bat :app:assembleDebug --console=plain 2>&1)",
+      "WebFetch(domain:github.com)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gokca\" -Depth 3 -Filter \"Google\" -ErrorAction SilentlyContinue | Select-Object FullName, PSIsContainer | Where-Object { $_.PSIsContainer -eq $true })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gokca\\\\OneDrive\" -ErrorAction SilentlyContinue | Where-Object { $_.PSIsContainer } | Select-Object Name; Write-Host \"---\"; $onedrivePath = \\(Get-ItemProperty -Path \"HKCU:\\\\Software\\\\Microsoft\\\\OneDrive\\\\Accounts\\\\Personal\" -ErrorAction SilentlyContinue\\).UserFolder; Write-Host \"OneDrive Personal: $onedrivePath\")",
+      "PowerShell(foreach \\($drive in @\\(\"D\",\"E\",\"F\",\"G\"\\)\\) { Write-Host \"=== Drive $drive ===\"; Get-ChildItem \"${drive}:\\\\\" -ErrorAction SilentlyContinue | Select-Object -First 5 Name })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gokca\\\\OneDrive\" -Force -ErrorAction SilentlyContinue | Where-Object { $_.PSIsContainer } | Select-Object Name, Attributes | Sort-Object Name)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gokca\\\\OneDrive\\\\Kişisel Kasa\" -Force -ErrorAction SilentlyContinue | Select-Object Name; Write-Host \"ExitCode: $LASTEXITCODE\")",
+      "PowerShell(python --version 2>&1)",
+      "PowerShell(pip show git-filter-repo 2>&1)"
+    ]
+  }
+}

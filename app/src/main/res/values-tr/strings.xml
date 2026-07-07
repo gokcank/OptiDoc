@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Belge Tarayıcı - OptiDoc</string>
+
+    <!-- General -->
+    <string name="error_occurred">Bir hata oluştu: %s</string>
+    <string name="loading">Yükleniyor...</string>
+    <string name="cancel">İptal</string>
+    <string name="save">Kaydet</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="theme">Tema</string>
+    <string name="system_default">Sistem Varsayılanı</string>
+    <string name="light_mode">Aydınlık Mod</string>
+    <string name="dark_mode">Karanlık Mod</string>
+    <string name="language">Dil</string>
+    <string name="turkish">Türkçe</string>
+    <string name="english">English</string>
+
+    <!-- Home Screen -->
+    <string name="home_empty_state">Henüz taranmış belge yok. Başlamak için aşağıdaki butona dokun.</string>
+    <string name="pages_count">%d Sayfa</string>
+    <string name="output_format">Çıktı: %s</string>
+    <string name="delete_document">Sil</string>
+    <string name="new_scan">Yeni Tarama</string>
+    <string name="clear_selection">Seçimi temizle</string>
+    <string name="select_all">Tümünü seç</string>
+    <string name="clear_all">Tümünü kaldır</string>
+    <string name="welcome_title">OptiDoc\'a Hoş Geldin</string>
+    <string name="welcome_desc">Dijital tarayıcın hazır. İşte yapabileceklerin:</string>
+    <string name="feature_scan">Belgelerini yüksek kalitede tara</string>
+    <string name="feature_ocr">Fotoğraflardaki metinleri çıkar (OCR)</string>
+    <string name="feature_export">Anında PDF veya TXT olarak paylaş</string>
+    <string name="selected">seçili</string>
+    <string name="format_txt_ocr">TXT (OCR)</string>
+    <string name="format_pdf_ocr">PDF (OCR)</string>
+
+    <!-- Scan Screen -->
+    <string name="preparing_scanner">Tarayıcı hazırlanıyor...</string>
+    <string name="scan_prefix">Tarama</string>
+    <string name="error_scan_failed">Tarama sonucu parse edilemedi</string>
+
+    <!-- Review Screen -->
+    <!-- Decision -->
+    <string name="review_decision_title">Belgeyi İşle</string>
+    <string name="apply_ocr">OCR Uygula</string>
+    <string name="apply_ocr_desc">Metni düzenlemek veya TXT/PDF olarak dışa aktarmak için görüntüden metin çıkarın.</string>
+    <string name="save_direct">Doğrudan Kaydet</string>
+    <string name="save_direct_desc">Görüntüleri standart PDF belgesi olarak kaydedin.</string>
+    <string name="error_save_direct">Doğrudan kaydetme başarısız</string>
+    <string name="error_apply_ocr">OCR uygulama başarısız</string>
+    
+    <!-- Edit -->
+    <string name="review_edit_title">Çıkarılan Metni Düzenle</string>
+    <string name="save_and_continue">Kaydet ve Devam Et</string>
+    <string name="ocr_text_hint">Çıkarılan Metin</string>
+    <string name="page_number">Sayfa %d</string>
+
+    <!-- Export -->
+    <string name="review_export_title">Dışa Aktarma Formatı Seçin</string>
+    <string name="export_format_txt">TXT Dosyası</string>
+    <string name="export_format_pdf">Sadece Metin İçeren PDF</string>
+    <string name="export_document">Belgeyi Dışa Aktar</string>
+    <string name="error_document_not_found">Belge bulunamadı</string>
+    <string name="error_export_jpegs">JPEG\'leri dışa aktarma başarısız</string>
+    <string name="error_export">Dışa aktarma başarısız</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">Belge Detayları</string>
+    <string name="open_file">Dosyayı Aç</string>
+    <string name="share_file">Dosyayı Paylaş</string>
+    <string name="output_not_ready">Çıktı dosyası henüz hazır değil.</string>
+    <string name="about">Hakkında</string>
+    <string name="about_version">OptiDoc v%1$s (Kapalı Beta)</string>
+    <string name="about_developer">Geliştirici: gokcank</string>
+    <string name="bug_report">HATA BİLDİR</string>
+    <string name="save_to_device">Cihaza Kaydet</string>
+    <string name="share">Paylaş</string>
+    <string name="error_save_jpeg">JPEG kaydetme başarısız</string>
+    <string name="error_save_file">Dosya kaydetme başarısız</string>
+</resources>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">OptiDoc</string>
+
+    <!-- General -->
+    <string name="error_occurred">An error occurred: %s</string>
+    <string name="loading">Loading...</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="theme">Theme</string>
+    <string name="system_default">System Default</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="language">Language</string>
+    <string name="turkish">Türkçe</string>
+    <string name="english">English</string>
+
+    <!-- Home Screen -->
+    <string name="home_empty_state">No documents scanned yet. Tap the button below to start.</string>
+    <string name="pages_count">%d Pages</string>
+    <string name="output_format">Output: %s</string>
+    <string name="delete_document">Delete</string>
+    <string name="new_scan">New Scan</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="select_all">Select all</string>
+    <string name="clear_all">Clear all</string>
+    <string name="welcome_title">Welcome to OptiDoc</string>
+    <string name="welcome_desc">Your digital scanner is ready. Here is what you can do:</string>
+    <string name="feature_scan">Scan documents in high quality</string>
+    <string name="feature_ocr">Extract text from photos (OCR)</string>
+    <string name="feature_export">Export instantly as PDF or TXT</string>
+    <string name="selected">Selected</string>
+    <string name="format_txt_ocr">TXT (OCR)</string>
+    <string name="format_pdf_ocr">PDF (OCR)</string>
+
+    <!-- Scan Screen -->
+    <string name="preparing_scanner">Preparing scanner...</string>
+    <string name="scan_prefix">Scan</string>
+    <string name="error_scan_failed">Failed to parse scan result</string>
+
+    <!-- Review Screen -->
+    <!-- Decision -->
+    <string name="review_decision_title">Process Document</string>
+    <string name="apply_ocr">Apply OCR</string>
+    <string name="apply_ocr_desc">Extract text from image to edit or export as TXT/PDF.</string>
+    <string name="save_direct">Save Directly</string>
+    <string name="save_direct_desc">Save the document as a standard PDF containing the images.</string>
+    <string name="error_save_direct">Failed to save directly</string>
+    <string name="error_apply_ocr">Failed to apply OCR</string>
+    
+    <!-- Edit -->
+    <string name="review_edit_title">Edit Extracted Text</string>
+    <string name="save_and_continue">Save &amp; Continue</string>
+    <string name="ocr_text_hint">Extracted Text</string>
+    <string name="page_number">Page %d</string>
+
+    <!-- Export -->
+    <string name="review_export_title">Choose Export Format</string>
+    <string name="export_format_txt">TXT File</string>
+    <string name="export_format_pdf">Text-only PDF</string>
+    <string name="export_document">Export Document</string>
+    <string name="error_document_not_found">Document not found</string>
+    <string name="error_export_jpegs">Failed to export JPEGs</string>
+    <string name="error_export">Failed to export</string>
+
+    <!-- Detail Screen -->
+    <string name="detail_title">Document Details</string>
+    <string name="open_file">Open File</string>
+    <string name="share_file">Share File</string>
+    <string name="output_not_ready">Output file is not ready yet.</string>
+    <string name="about">About</string>
+    <string name="about_version">OptiDoc v%1$s (Closed Beta)</string>
+    <string name="about_developer">Developer: gokcank</string>
+    <string name="bug_report">BUG REPORT</string>
+    <string name="save_to_device">Save to Device</string>
+    <string name="share">Share</string>
+    <string name="error_save_jpeg">Failed to save JPEG</string>
+    <string name="error_save_file">Failed to save file</string>
+</resources>
+
+
