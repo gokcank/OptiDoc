@@ -20,6 +20,12 @@
     <string name="english">English</string>
 
     <!-- Home Screen -->
+    <string name="search_documents">Search documents...</string>
+    <string name="sort_by">Sort By</string>
+    <string name="sort_date_desc">Date (Newest)</string>
+    <string name="sort_date_asc">Date (Oldest)</string>
+    <string name="sort_title_asc">Title (A-Z)</string>
+    <string name="sort_title_desc">Title (Z-A)</string>
     <string name="home_empty_state">No documents scanned yet. Tap the button below to start.</string>
     <string name="pages_count">%d Pages</string>
     <string name="output_format">Output: %s</string>

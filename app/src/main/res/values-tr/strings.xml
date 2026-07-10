@@ -20,6 +20,12 @@
     <string name="english">English</string>
 
     <!-- Home Screen -->
+    <string name="search_documents">Belgelerde ara...</string>
+    <string name="sort_by">Sırala</string>
+    <string name="sort_date_desc">Tarih (En Yeni)</string>
+    <string name="sort_date_asc">Tarih (En Eski)</string>
+    <string name="sort_title_asc">Başlık (A-Z)</string>
+    <string name="sort_title_desc">Başlık (Z-A)</string>
     <string name="home_empty_state">Henüz taranmış belge yok. Başlamak için aşağıdaki butona dokun.</string>
     <string name="pages_count">%d Sayfa</string>
     <string name="output_format">Çıktı: %s</string>

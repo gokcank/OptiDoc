@@ -14,6 +14,9 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
@@ -40,11 +43,14 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val sortOrder by viewModel.sortOrder.collectAsState()
 
     // Çoklu seçim durumu
     var selectedIds by remember { mutableStateOf(emptySet<Long>()) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
     val isSelectionMode = selectedIds.isNotEmpty()
 
     // Seçim modunu sonlandırır
@@ -103,6 +109,36 @@ fun HomeScreen(
                     CenterAlignedTopAppBar(
                         title = { Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge) },
                         actions = {
+                            Box {
+                                IconButton(onClick = { showSortMenu = true }) {
+                                    Icon(Icons.Default.Sort, contentDescription = stringResource(R.string.sort_by))
+                                }
+                                DropdownMenu(
+                                    expanded = showSortMenu,
+                                    onDismissRequest = { showSortMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_date_desc)) },
+                                        onClick = { viewModel.updateSortOrder(SortOrder.DATE_DESC); showSortMenu = false },
+                                        trailingIcon = if (sortOrder == SortOrder.DATE_DESC) { { Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp)) } } else null
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_date_asc)) },
+                                        onClick = { viewModel.updateSortOrder(SortOrder.DATE_ASC); showSortMenu = false },
+                                        trailingIcon = if (sortOrder == SortOrder.DATE_ASC) { { Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp)) } } else null
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_title_asc)) },
+                                        onClick = { viewModel.updateSortOrder(SortOrder.TITLE_ASC); showSortMenu = false },
+                                        trailingIcon = if (sortOrder == SortOrder.TITLE_ASC) { { Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp)) } } else null
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.sort_title_desc)) },
+                                        onClick = { viewModel.updateSortOrder(SortOrder.TITLE_DESC); showSortMenu = false },
+                                        trailingIcon = if (sortOrder == SortOrder.TITLE_DESC) { { Icon(Icons.Default.CheckCircle, null, Modifier.size(16.dp)) } } else null
+                                    )
+                                }
+                            }
                             IconButton(onClick = { showAboutDialog = true }) {
                                 Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
                             }
@@ -156,28 +192,60 @@ fun HomeScreen(
                     )
                 }
                 is HomeUiState.Success -> {
-                    if (state.documents.isEmpty()) {
-                        EmptyState()
-                    } else {
-                        DocumentList(
-                            documents = state.documents,
-                            selectedIds = selectedIds,
-                            isSelectionMode = isSelectionMode,
-                            onDocumentClick = { doc ->
-                                if (isSelectionMode) {
-                                    selectedIds = if (selectedIds.contains(doc.id))
-                                        selectedIds - doc.id
-                                    else
-                                        selectedIds + doc.id
-                                } else {
-                                    onDocumentClick(doc.id)
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Search Bar
+                        if (state.documents.isNotEmpty() || searchQuery.isNotBlank()) {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { viewModel.updateSearchQuery(it) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                placeholder = { Text(stringResource(R.string.search_documents)) },
+                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                trailingIcon = {
+                                    if (searchQuery.isNotEmpty()) {
+                                        IconButton(onClick = { viewModel.updateSearchQuery("") }) {
+                                            Icon(Icons.Default.Clear, contentDescription = null)
+                                        }
+                                    }
+                                },
+                                singleLine = true,
+                                shape = MaterialTheme.shapes.large
+                            )
+                        }
+
+                        if (state.documents.isEmpty()) {
+                            if (searchQuery.isNotBlank()) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Text("Sonuç bulunamadı", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                            },
-                            onDocumentLongClick = { doc ->
-                                selectedIds = selectedIds + doc.id
-                            },
-                            onDelete = { viewModel.deleteDocument(it.id) }
-                        )
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    EmptyState()
+                                }
+                            }
+                        } else {
+                            DocumentList(
+                                documents = state.documents,
+                                selectedIds = selectedIds,
+                                isSelectionMode = isSelectionMode,
+                                onDocumentClick = { doc ->
+                                    if (isSelectionMode) {
+                                        selectedIds = if (selectedIds.contains(doc.id))
+                                            selectedIds - doc.id
+                                        else
+                                            selectedIds + doc.id
+                                    } else {
+                                        onDocumentClick(doc.id)
+                                    }
+                                },
+                                onDocumentLongClick = { doc ->
+                                    selectedIds = selectedIds + doc.id
+                                },
+                                onDelete = { viewModel.deleteDocument(it.id) }
+                            )
+                        }
                     }
                 }
             } // Close when
