@@ -77,7 +77,7 @@ val MinimalistShapes = Shapes(
 )
 
 @Composable
-fun BelgeTarayiciTheme(
+fun OptiDocTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color disabled by default for the minimalist UI
     dynamicColor: Boolean = false,

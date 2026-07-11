@@ -43,7 +43,7 @@ class ExportRepositoryImpl @Inject constructor(
 ) : ExportRepository {
 
     /** Cihaz diline göre "Taramalar" veya "Scans" */
-    private fun folderName(): String = "BelgeTarayici"
+    private fun folderName(): String = "OptiDoc"
 
     /** Başlıktaki dosya sistemi için geçersiz karakterleri temizler. */
     private fun safeTitle(title: String) =

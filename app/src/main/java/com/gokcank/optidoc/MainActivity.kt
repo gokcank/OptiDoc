@@ -8,7 +8,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.gokcank.optidoc.ui.navigation.OptiDocNavHost
-import com.gokcank.optidoc.ui.theme.BelgeTarayiciTheme
+import com.gokcank.optidoc.ui.theme.OptiDocTheme
 import com.gokcank.optidoc.data.settings.SettingsRepository
 import com.gokcank.optidoc.data.settings.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
             
-            BelgeTarayiciTheme(darkTheme = darkTheme) {
+            OptiDocTheme(darkTheme = darkTheme) {
                 OptiDocNavHost()
             }
         }
