@@ -15,5 +15,6 @@ data class ScannedDocument(
     val title: String,
     val createdAt: Long,
     val pageCount: Int,
-    val output: DocumentOutput = DocumentOutput.None
+    val output: DocumentOutput = DocumentOutput.None,
+    val folderId: Long? = null
 )

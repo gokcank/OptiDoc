@@ -50,4 +50,8 @@ interface PageDao {
     /** Bir belgeye ait tüm sayfaları açıkça siler. */
     @Query("DELETE FROM pages WHERE documentId = :documentId")
     suspend fun deletePagesByDocumentId(documentId: Long)
+
+    /** Sayfa numarasını (sırasını) günceller. */
+    @Query("UPDATE pages SET pageNumber = :newPageNumber WHERE id = :pageId")
+    suspend fun updatePageNumber(pageId: Long, newPageNumber: Int)
 }

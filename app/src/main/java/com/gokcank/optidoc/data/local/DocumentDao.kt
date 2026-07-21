@@ -75,4 +75,16 @@ interface DocumentDao {
     /** id üzerinden silme — nesneyi önceden yüklemeye gerek yoktur. */
     @Query("DELETE FROM documents WHERE id = :id")
     suspend fun deleteDocumentById(id: Long)
+
+    /** Belirli bir klasöre ait belgeleri döndürür. */
+    @Query("SELECT * FROM documents WHERE folderId = :folderId ORDER BY createdAt DESC")
+    fun getDocumentsByFolder(folderId: Long): Flow<List<DocumentEntity>>
+
+    /** Herhangi bir klasöre ait olmayan (ana dizin) belgeleri döndürür. */
+    @Query("SELECT * FROM documents WHERE folderId IS NULL ORDER BY createdAt DESC")
+    fun getDocumentsWithoutFolder(): Flow<List<DocumentEntity>>
+
+    /** Belgenin klasörünü günceller (null = klasörden çıkar). */
+    @Query("UPDATE documents SET folderId = :folderId WHERE id = :documentId")
+    suspend fun moveToFolder(documentId: Long, folderId: Long?)
 }

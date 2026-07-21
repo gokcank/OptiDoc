@@ -10,6 +10,9 @@ import com.gokcank.optidoc.domain.model.DocumentPage
 import com.gokcank.optidoc.domain.model.ExportFormat
 import com.gokcank.optidoc.domain.model.ScannedDocument
 
+import com.gokcank.optidoc.data.local.FolderEntity
+import com.gokcank.optidoc.domain.model.Folder
+
 // ── Entity → Domain ──────────────────────────────────────────────────────────
 
 internal fun DocumentEntity.toDomain(): ScannedDocument = ScannedDocument(
@@ -22,7 +25,8 @@ internal fun DocumentEntity.toDomain(): ScannedDocument = ScannedDocument(
         OutputFormat.OCR_TXT    -> DocumentOutput.OcrExport(ExportFormat.TXT, outputUri!!)
         OutputFormat.OCR_PDF    -> DocumentOutput.OcrExport(ExportFormat.PDF, outputUri!!)
         null                    -> DocumentOutput.None
-    }
+    },
+    folderId  = folderId
 )
 
 internal fun PageEntity.toDomain(): DocumentPage = DocumentPage(
@@ -31,6 +35,12 @@ internal fun PageEntity.toDomain(): DocumentPage = DocumentPage(
     pageNumber  = pageNumber,
     imageUri    = imageUri,
     ocrText     = ocrText
+)
+
+internal fun FolderEntity.toDomain(): Folder = Folder(
+    id        = id,
+    name      = name,
+    createdAt = createdAt
 )
 
 // ── Domain → Entity ──────────────────────────────────────────────────────────
@@ -50,7 +60,8 @@ internal fun ScannedDocument.toEntity(): DocumentEntity = DocumentEntity(
         is DocumentOutput.None      -> null
         is DocumentOutput.DirectPdf -> o.uri
         is DocumentOutput.OcrExport -> o.uri
-    }
+    },
+    folderId = folderId
 )
 
 internal fun DocumentPage.toEntity(): PageEntity = PageEntity(
@@ -59,4 +70,10 @@ internal fun DocumentPage.toEntity(): PageEntity = PageEntity(
     pageNumber = pageNumber,
     imageUri   = imageUri,
     ocrText    = ocrText
+)
+
+internal fun Folder.toEntity(): FolderEntity = FolderEntity(
+    id        = id,
+    name      = name,
+    createdAt = createdAt
 )

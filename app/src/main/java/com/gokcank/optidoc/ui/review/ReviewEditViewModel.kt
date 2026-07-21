@@ -10,6 +10,7 @@ import com.gokcank.optidoc.domain.repository.ExportRepository
 import com.gokcank.optidoc.domain.usecase.ExportDocumentUseCase
 import com.gokcank.optidoc.domain.usecase.ExportPageImagesUseCase
 import com.gokcank.optidoc.domain.usecase.GetDocumentDetailUseCase
+import com.gokcank.optidoc.domain.usecase.ReorderPagesUseCase
 import com.gokcank.optidoc.domain.usecase.UpdatePageTextUseCase
 import com.gokcank.optidoc.ui.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +31,8 @@ class ReviewEditViewModel @Inject constructor(
     private val getDocumentDetailUseCase: GetDocumentDetailUseCase,
     private val updatePageTextUseCase: UpdatePageTextUseCase,
     private val exportDocumentUseCase: ExportDocumentUseCase,
-    private val exportPageImagesUseCase: ExportPageImagesUseCase
+    private val exportPageImagesUseCase: ExportPageImagesUseCase,
+    private val reorderPagesUseCase: ReorderPagesUseCase
 ) : ViewModel() {
 
     private val route = savedStateHandle.toRoute<Screen.ReviewEdit>()
@@ -71,12 +73,25 @@ class ReviewEditViewModel @Inject constructor(
         }
     }
 
+    fun movePage(fromIndex: Int, toIndex: Int) {
+        if (fromIndex == toIndex || fromIndex !in currentPages.indices || toIndex !in currentPages.indices) return
+        val mutable = currentPages.toMutableList()
+        val item = mutable.removeAt(fromIndex)
+        mutable.add(toIndex, item)
+        currentPages = mutable
+        _uiState.value = ReviewEditUiState.Success(currentPages)
+
+        viewModelScope.launch {
+            reorderPagesUseCase(mutable.map { it.id })
+        }
+    }
+
     fun exportDocument(format: ExportFormat) {
         if (currentPages.isEmpty()) return
-        
+
         viewModelScope.launch {
             _uiState.value = ReviewEditUiState.Exporting
-            
+
             if (format == ExportFormat.JPEG) {
                 exportPageImagesUseCase(documentId)
                     .onSuccess {
@@ -89,10 +104,10 @@ class ReviewEditViewModel @Inject constructor(
             }
 
             val sortedPages = currentPages.sortedBy { it.pageNumber }
-            val combinedText = sortedPages.joinToString(ExportRepository.PAGE_SEPARATOR) { 
-                it.ocrText ?: "" 
+            val combinedText = sortedPages.joinToString(ExportRepository.PAGE_SEPARATOR) {
+                it.ocrText ?: ""
             }
-            
+
             exportDocumentUseCase(
                 documentId = documentId,
                 text = combinedText,

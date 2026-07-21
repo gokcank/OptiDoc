@@ -2,8 +2,11 @@ package com.gokcank.optidoc.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.gokcank.optidoc.data.local.AppDatabase
 import com.gokcank.optidoc.data.local.DocumentDao
+import com.gokcank.optidoc.data.local.FolderDao
 import com.gokcank.optidoc.data.local.PageDao
 import dagger.Module
 import dagger.Provides
@@ -18,8 +21,8 @@ import javax.inject.Singleton
  * ## Scope kararları
  * - [AppDatabase] → [@Singleton]: Veritabanı bağlantısı pahalıdır;
  *   uygulama boyunca tek bir örnek yeterlidir.
- * - [DocumentDao] / [PageDao] → unscoped: DAO'lar yalnızca veritabanı
- *   referansını taşır ve durumsuzdu; her injection noktasında
+ * - [DocumentDao] / [PageDao] / [FolderDao] → unscoped: DAO'lar yalnızca veritabanı
+ *   referansını taşır ve durumsuzdur; her injection noktasında
  *   yeniden oluşturulmaları ücretsizdir.
  *
  * ## Migration
@@ -29,6 +32,17 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+
+    private val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `folders` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)"
+            )
+            database.execSQL(
+                "ALTER TABLE `documents` ADD COLUMN `folderId` INTEGER"
+            )
+        }
+    }
 
     @Provides
     @Singleton
@@ -40,7 +54,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "belge_tarayici.db"
         )
-            // İleride: .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2)
             .build()
 
     @Provides
@@ -48,4 +62,7 @@ object DatabaseModule {
 
     @Provides
     fun providePageDao(db: AppDatabase): PageDao = db.pageDao()
+
+    @Provides
+    fun provideFolderDao(db: AppDatabase): FolderDao = db.folderDao()
 }

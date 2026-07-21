@@ -28,5 +28,6 @@ data class DocumentEntity(
     val createdAt: Long,
     val pageCount: Int,
     val outputFormat: OutputFormat? = null,
-    val outputUri: String? = null
+    val outputUri: String? = null,
+    val folderId: Long? = null
 )

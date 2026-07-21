@@ -18,13 +18,15 @@ import androidx.room.TypeConverters
 @Database(
     entities = [
         DocumentEntity::class,
-        PageEntity::class
+        PageEntity::class,
+        FolderEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun documentDao(): DocumentDao
     abstract fun pageDao(): PageDao
+    abstract fun folderDao(): FolderDao
 }

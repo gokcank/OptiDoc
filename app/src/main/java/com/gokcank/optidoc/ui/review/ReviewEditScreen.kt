@@ -8,6 +8,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -81,7 +83,8 @@ fun ReviewEditScreen(
                 is ReviewEditUiState.Success -> {
                     EditPager(
                         pages = state.pages,
-                        onTextChanged = { pageId, text -> viewModel.updatePageText(pageId, text) }
+                        onTextChanged = { pageId, text -> viewModel.updatePageText(pageId, text) },
+                        onMovePage = { from, to -> viewModel.movePage(from, to) }
                     )
                 }
             }
@@ -125,7 +128,8 @@ fun ReviewEditScreen(
 @Composable
 private fun EditPager(
     pages: List<DocumentPage>,
-    onTextChanged: (Long, String) -> Unit
+    onTextChanged: (Long, String) -> Unit,
+    onMovePage: (Int, Int) -> Unit
 ) {
     if (pages.isEmpty()) return
 
@@ -180,13 +184,33 @@ private fun EditPager(
             }
         }
 
-        Text(
-            text = stringResource(R.string.page_number, pagerState.currentPage + 1),
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center,
+        // Sayfa yönlendirme ve sıralama kontrol alanı
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-        )
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { onMovePage(pagerState.currentPage, pagerState.currentPage - 1) },
+                enabled = pagerState.currentPage > 0
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Sola Taşı")
+            }
+
+            Text(
+                text = stringResource(R.string.page_number, pagerState.currentPage + 1),
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center
+            )
+
+            IconButton(
+                onClick = { onMovePage(pagerState.currentPage, pagerState.currentPage + 1) },
+                enabled = pagerState.currentPage < pages.size - 1
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Sağa Taşı")
+            }
+        }
     }
 }

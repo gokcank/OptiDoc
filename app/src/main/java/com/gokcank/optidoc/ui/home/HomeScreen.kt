@@ -3,21 +3,26 @@ package com.gokcank.optidoc.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gokcank.optidoc.R
 import com.gokcank.optidoc.domain.model.DocumentOutput
 import com.gokcank.optidoc.domain.model.ExportFormat
+import com.gokcank.optidoc.domain.model.Folder
 import com.gokcank.optidoc.domain.model.ScannedDocument
 import java.text.DateFormat
 import java.util.Date
@@ -45,18 +51,24 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val sortOrder by viewModel.sortOrder.collectAsState()
+    val folders by viewModel.folders.collectAsState()
+    val selectedFolderId by viewModel.selectedFolderId.collectAsState()
 
-    // Çoklu seçim durumu
+    // Çoklu seçim ve dialog durumları
     var selectedIds by remember { mutableStateOf(emptySet<Long>()) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
+    var showCreateFolderDialog by remember { mutableStateOf(false) }
+    var folderToDelete by remember { mutableStateOf<Folder?>(null) }
+    var documentToMove by remember { mutableStateOf<ScannedDocument?>(null) }
+    var documentToDelete by remember { mutableStateOf<ScannedDocument?>(null) }
+    var showDeleteSelectedDialog by remember { mutableStateOf(false) }
+
     val isSelectionMode = selectedIds.isNotEmpty()
 
-    // Seçim modunu sonlandırır
     fun exitSelection() { selectedIds = emptySet() }
 
-    // Seçim modu açıkken geri tuşu seçimi iptal etsin, uygulamadan çıkmasın
     BackHandler(enabled = isSelectionMode) {
         exitSelection()
     }
@@ -80,18 +92,13 @@ fun HomeScreen(
                             }
                         },
                         actions = {
-                            // Tümünü seç / seçimi kaldır
                             TextButton(onClick = {
                                 selectedIds = if (allSelected) emptySet() else allIds.toSet()
                             }) {
                                 Text(if (allSelected) stringResource(R.string.clear_all) else stringResource(R.string.select_all))
                             }
-                            // Sil
                             IconButton(
-                                onClick = {
-                                    selectedIds.forEach { viewModel.deleteDocument(it) }
-                                    exitSelection()
-                                }
+                                onClick = { showDeleteSelectedDialog = true }
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
@@ -181,9 +188,9 @@ fun HomeScreen(
                 .padding(paddingValues)
         ) {
             when (val state = uiState) {
-                    is HomeUiState.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+                is HomeUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
                 is HomeUiState.Error -> {
                     Text(
                         text = stringResource(R.string.error_occurred, state.message),
@@ -194,26 +201,33 @@ fun HomeScreen(
                 is HomeUiState.Success -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         // Search Bar
-                        if (state.documents.isNotEmpty() || searchQuery.isNotBlank()) {
-                            OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { viewModel.updateSearchQuery(it) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                placeholder = { Text(stringResource(R.string.search_documents)) },
-                                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                                            Icon(Icons.Default.Clear, contentDescription = null)
-                                        }
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { viewModel.updateSearchQuery(it) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            placeholder = { Text(stringResource(R.string.search_documents)) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { viewModel.updateSearchQuery("") }) {
+                                        Icon(Icons.Default.Clear, contentDescription = null)
                                     }
-                                },
-                                singleLine = true,
-                                shape = MaterialTheme.shapes.large
-                            )
-                        }
+                                }
+                            },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large
+                        )
+
+                        // Folder Chips Bar
+                        FolderChipsRow(
+                            folders = folders,
+                            selectedFolderId = selectedFolderId,
+                            onSelectFolder = { viewModel.selectFolder(it) },
+                            onCreateFolderClick = { showCreateFolderDialog = true },
+                            onFolderLongClick = { folderToDelete = it }
+                        )
 
                         if (state.documents.isEmpty()) {
                             if (searchQuery.isNotBlank()) {
@@ -243,27 +257,295 @@ fun HomeScreen(
                                 onDocumentLongClick = { doc ->
                                     selectedIds = selectedIds + doc.id
                                 },
-                                onDelete = { viewModel.deleteDocument(it.id) }
+                                onDelete = { doc -> documentToDelete = doc },
+                                onMoveToFolder = { doc -> documentToMove = doc }
                             )
                         }
                     }
                 }
-            } // Close when
-        } // Close Box
-} // Close Scaffold content lambda
-    
+            }
+        }
+    }
+
     if (showSettingsDialog) {
         SettingsDialog(onDismiss = { showSettingsDialog = false })
     }
-    
+
     if (showAboutDialog) {
         AboutDialog(onDismiss = { showAboutDialog = false })
+    }
+
+    if (showCreateFolderDialog) {
+        CreateFolderDialog(
+            onDismiss = { showCreateFolderDialog = false },
+            onCreate = { name ->
+                viewModel.createFolder(name)
+                showCreateFolderDialog = false
+            }
+        )
+    }
+
+    documentToDelete?.let { doc ->
+        AlertDialog(
+            onDismissRequest = { documentToDelete = null },
+            title = { Text("Belgeyi Sil") },
+            text = { Text("\"${doc.title}\" belgesini silmek istediğinize emin misiniz?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteDocument(doc.id)
+                        documentToDelete = null
+                    }
+                ) {
+                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { documentToDelete = null }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    if (showDeleteSelectedDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteSelectedDialog = false },
+            title = { Text("Seçili Belgeleri Sil") },
+            text = { Text("${selectedIds.size} belgeyi silmek istediğinize emin misiniz?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedIds.forEach { viewModel.deleteDocument(it) }
+                        exitSelection()
+                        showDeleteSelectedDialog = false
+                    }
+                ) {
+                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteSelectedDialog = false }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    folderToDelete?.let { folder ->
+        AlertDialog(
+            onDismissRequest = { folderToDelete = null },
+            title = { Text("Klasörü Sil") },
+            text = { Text("\"${folder.name}\" klasörünü silmek istediğinize emin misiniz? (İçindeki belgeler silinmez, klasörden çıkarılır)") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteFolder(folder.id)
+                        folderToDelete = null
+                    }
+                ) {
+                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { folderToDelete = null }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+
+    documentToMove?.let { doc ->
+        MoveToFolderDialog(
+            folders = folders,
+            currentFolderId = doc.folderId,
+            onDismiss = { documentToMove = null },
+            onSelectFolder = { targetFolderId ->
+                viewModel.moveDocumentToFolder(doc.id, targetFolderId)
+                documentToMove = null
+            }
+        )
     }
 }
 
 @Composable
+private fun FolderChipsRow(
+    folders: List<Folder>,
+    selectedFolderId: Long?,
+    onSelectFolder: (Long?) -> Unit,
+    onCreateFolderClick: () -> Unit,
+    onFolderLongClick: (Folder) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Tümü Chip
+        FilterChip(
+            selected = selectedFolderId == null,
+            onClick = { onSelectFolder(null) },
+            label = { Text("Tümü") },
+            leadingIcon = {
+                Icon(
+                    imageVector = if (selectedFolderId == null) Icons.Default.FolderOpen else Icons.Default.Folder,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        )
+
+        // Klasörler
+        folders.forEach { folder ->
+            val isSelected = selectedFolderId == folder.id
+            OptiDocFolderChip(
+                folder = folder,
+                isSelected = isSelected,
+                onClick = { onSelectFolder(folder.id) },
+                onLongClick = { onFolderLongClick(folder) }
+            )
+        }
+
+        // Yeni Klasör Ekle Chip
+        AssistChip(
+            onClick = onCreateFolderClick,
+            label = { Text("Yeni Klasör") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.CreateNewFolder,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun OptiDocFolderChip(
+    folder: Folder,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    FilterChip(
+        selected = isSelected,
+        onClick = onClick,
+        label = { Text(folder.name) },
+        leadingIcon = {
+            Icon(
+                imageVector = if (isSelected) Icons.Default.FolderOpen else Icons.Default.Folder,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+        },
+        trailingIcon = if (isSelected) {
+            {
+                IconButton(
+                    onClick = onLongClick,
+                    modifier = Modifier.size(18.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Klasörü Sil",
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        } else null,
+        modifier = Modifier.combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
+    )
+}
+
+@Composable
+private fun CreateFolderDialog(
+    onDismiss: () -> Unit,
+    onCreate: (String) -> Unit
+) {
+    var folderName by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Yeni Klasör Oluştur") },
+        text = {
+            OutlinedTextField(
+                value = folderName,
+                onValueChange = { folderName = it },
+                label = { Text("Klasör Adı") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (folderName.isNotBlank()) onCreate(folderName.trim()) },
+                enabled = folderName.isNotBlank()
+            ) {
+                Text("Oluştur")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("İptal")
+            }
+        }
+    )
+}
+
+@Composable
+private fun MoveToFolderDialog(
+    folders: List<Folder>,
+    currentFolderId: Long?,
+    onDismiss: () -> Unit,
+    onSelectFolder: (Long?) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Klasöre Taşı") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(
+                    onClick = { onSelectFolder(null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = if (currentFolderId == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Icon(Icons.Default.Folder, contentDescription = null, Modifier.padding(end = 8.dp))
+                    Text("Klasörsüz (Ana Dizin)", modifier = Modifier.weight(1f))
+                }
+                folders.forEach { folder ->
+                    TextButton(
+                        onClick = { onSelectFolder(folder.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (currentFolderId == folder.id) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Icon(Icons.Default.Folder, contentDescription = null, Modifier.padding(end = 8.dp))
+                        Text(folder.name, modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("İptal")
+            }
+        }
+    )
+}
+
+@Composable
 private fun BoxScope.EmptyState() {
-    // Watermark Logo
     androidx.compose.foundation.Image(
         painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_optidoc_logo_detailed),
         contentDescription = null,
@@ -290,7 +572,7 @@ private fun BoxScope.EmptyState() {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = stringResource(R.string.welcome_desc),
             style = MaterialTheme.typography.bodyMedium,
@@ -298,13 +580,13 @@ private fun BoxScope.EmptyState() {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         FeatureItem(icon = "📄", text = stringResource(R.string.feature_scan))
         Spacer(modifier = Modifier.height(16.dp))
         FeatureItem(icon = "🔍", text = stringResource(R.string.feature_ocr))
         Spacer(modifier = Modifier.height(16.dp))
-        FeatureItem(icon = "📤", text = stringResource(R.string.feature_export))
-        
+        FeatureItem(icon = "📁", text = "Belgeleri Klasörlerde Düzenleme")
+
         Spacer(modifier = Modifier.height(48.dp))
     }
 }
@@ -336,7 +618,8 @@ private fun DocumentList(
     isSelectionMode: Boolean,
     onDocumentClick: (ScannedDocument) -> Unit,
     onDocumentLongClick: (ScannedDocument) -> Unit,
-    onDelete: (ScannedDocument) -> Unit
+    onDelete: (ScannedDocument) -> Unit,
+    onMoveToFolder: (ScannedDocument) -> Unit
 ) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
@@ -345,13 +628,14 @@ private fun DocumentList(
         items(documents, key = { it.id }) { document ->
             val isSelected = selectedIds.contains(document.id)
 
-            // Seçim modunda swipe devre dışı; normal modda swipe-to-delete aktif
             if (isSelectionMode) {
                 DocumentCard(
                     document = document,
                     isSelected = isSelected,
                     onClick = { onDocumentClick(document) },
                     onLongClick = { onDocumentLongClick(document) },
+                    onMoveToFolder = { onMoveToFolder(document) },
+                    onDelete = { onDelete(document) },
                     modifier = Modifier.animateItem(
                         fadeInSpec = null,
                         fadeOutSpec = null
@@ -371,8 +655,7 @@ private fun DocumentList(
                         val fraction = dismissState.progress.coerceIn(0f, 1f)
                         val containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = fraction)
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             Surface(
@@ -401,7 +684,9 @@ private fun DocumentList(
                         document = document,
                         isSelected = false,
                         onClick = { onDocumentClick(document) },
-                        onLongClick = { onDocumentLongClick(document) }
+                        onLongClick = { onDocumentLongClick(document) },
+                        onMoveToFolder = { onMoveToFolder(document) },
+                        onDelete = { onDelete(document) }
                     )
                 }
             }
@@ -416,8 +701,12 @@ private fun DocumentCard(
     isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    onMoveToFolder: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -440,7 +729,6 @@ private fun DocumentCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Seçim ikonu
             AnimatedVisibility(visible = isSelected) {
                 Icon(
                     imageVector = Icons.Filled.CheckCircle,
@@ -490,6 +778,39 @@ private fun DocumentCard(
                             color = MaterialTheme.colorScheme.secondary
                         )
                     }
+                }
+            }
+
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = null)
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Klasöre Taşı") },
+                        onClick = {
+                            showMenu = false
+                            onMoveToFolder()
+                        },
+                        leadingIcon = { Icon(Icons.Default.DriveFileMove, null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.delete_document), color = MaterialTheme.colorScheme.error) },
+                        onClick = {
+                            showMenu = false
+                            onDelete()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    )
                 }
             }
         }

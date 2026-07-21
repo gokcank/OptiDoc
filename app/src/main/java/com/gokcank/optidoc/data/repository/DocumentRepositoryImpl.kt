@@ -12,6 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+import com.gokcank.optidoc.data.local.FolderDao
+import com.gokcank.optidoc.data.local.FolderEntity
+import com.gokcank.optidoc.domain.model.Folder
+
 /**
  * [DocumentRepository] arayüzünün Room tabanlı implementasyonu.
  *
@@ -20,7 +24,8 @@ import javax.inject.Inject
  */
 class DocumentRepositoryImpl @Inject constructor(
     private val documentDao: DocumentDao,
-    private val pageDao: PageDao
+    private val pageDao: PageDao,
+    private val folderDao: FolderDao
 ) : DocumentRepository {
 
     override fun getDocuments(): Flow<List<ScannedDocument>> =
@@ -66,4 +71,25 @@ class DocumentRepositoryImpl @Inject constructor(
 
     override suspend fun deleteDocument(id: Long) =
         documentDao.deleteDocumentById(id)
+
+    override fun getDocumentsByFolder(folderId: Long): Flow<List<ScannedDocument>> =
+        documentDao.getDocumentsByFolder(folderId).map { list -> list.map { it.toDomain() } }
+
+    override fun getDocumentsWithoutFolder(): Flow<List<ScannedDocument>> =
+        documentDao.getDocumentsWithoutFolder().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun moveToFolder(documentId: Long, folderId: Long?) =
+        documentDao.moveToFolder(documentId, folderId)
+
+    override fun getAllFolders(): Flow<List<Folder>> =
+        folderDao.getAllFolders().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun createFolder(name: String): Long =
+        folderDao.insertFolder(FolderEntity(name = name, createdAt = System.currentTimeMillis()))
+
+    override suspend fun deleteFolder(id: Long) =
+        folderDao.deleteFolderById(id)
+
+    override suspend fun updatePageNumber(pageId: Long, newPageNumber: Int) =
+        pageDao.updatePageNumber(pageId, newPageNumber)
 }

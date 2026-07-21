@@ -45,4 +45,29 @@ interface DocumentRepository {
 
     /** Belgeyi ve tüm sayfalarını siler. */
     suspend fun deleteDocument(id: Long)
+
+    // ── Klasör İşlemleri ─────────────────────────────────────────────────────
+
+    /** Belirli bir klasördeki belgeleri yayar. */
+    fun getDocumentsByFolder(folderId: Long): Flow<List<ScannedDocument>>
+
+    /** Klasörsüz (ana dizindeki) belgeleri yayar. */
+    fun getDocumentsWithoutFolder(): Flow<List<ScannedDocument>>
+
+    /** Belgeyi bir klasöre taşır veya klasörden çıkarır (folderId = null). */
+    suspend fun moveToFolder(documentId: Long, folderId: Long?)
+
+    /** Tüm klasörleri yayar. */
+    fun getAllFolders(): Flow<List<com.gokcank.optidoc.domain.model.Folder>>
+
+    /** Yeni klasör oluşturur ve id'sini döner. */
+    suspend fun createFolder(name: String): Long
+
+    /** Klasörü siler. */
+    suspend fun deleteFolder(id: Long)
+
+    // ── Sayfa Sıralama ───────────────────────────────────────────────────────
+
+    /** Sayfa sırasını günceller. */
+    suspend fun updatePageNumber(pageId: Long, newPageNumber: Int)
 }
