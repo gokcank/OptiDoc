@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="Store Assets/store_logo_512.png" alt="OptiDoc Logo" width="140" height="140">
+  <img src="Store%20Assets/store_logo_512.png" alt="OptiDoc Logo" width="140" height="140">
   <h1>OptiDoc</h1>
   <p><strong>A Smart Document Scanner & OCR App</strong><br><em>Akıllı Belge Tarayıcı ve OCR Uygulaması</em></p>
   <br>
-  <img src="Store Assets/optidoc_showcase.png" alt="OptiDoc App Showcase" width="100%">
+  <img src="Store%20Assets/optidoc_showcase.png" alt="OptiDoc App Showcase" width="100%">
 </div>
 
 ---
