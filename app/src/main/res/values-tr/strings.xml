@@ -86,4 +86,34 @@
     <string name="share">Paylaş</string>
     <string name="error_save_jpeg">JPEG kaydetme başarısız</string>
     <string name="error_save_file">Dosya kaydetme başarısız</string>
+
+    <!-- Folders & Dynamic Dialogs -->
+    <string name="folder_all">Tümü</string>
+    <string name="folder_new">+ Yeni Klasör</string>
+    <string name="create_folder_title">Yeni Klasör Oluştur</string>
+    <string name="folder_name_hint">Klasör Adı</string>
+    <string name="create">Oluştur</string>
+    <string name="delete_document_title">Belgeyi Sil</string>
+    <string name="delete_document_confirm">\"%s\" belgesini silmek istediğinize emin misiniz?</string>
+    <string name="delete_selected_title">Seçili Belgeleri Sil</string>
+    <string name="delete_selected_confirm">%d belgeyi silmek istediğinize emin misiniz?</string>
+    <string name="delete_folder_title">Klasörü Sil</string>
+    <string name="delete_folder_confirm">\"%s\" klasörünü silmek istediğinize emin misiniz? (İçindeki belgeler silinmez, klasörden çıkarılır)</string>
+    <string name="move_to_folder">Klasöre Taşı</string>
+    <string name="folder_none">Klasörsüz (Ana Dizin)</string>
+    <string name="feature_folder">Belgeleri klasörlerde düzenleme</string>
+    <string name="no_results_found">Sonuç bulunamadı</string>
+    <string name="select_format_desc">Metni ve sayfa görsellerini kaydetmek için format seçin.</string>
+    <string name="move_left">Sola Taşı</string>
+    <string name="move_right">Sağa Taşı</string>
+    <string name="continue_edit">Devam Et / Düzenle</string>
+    <string name="choose_save_format">Hangi formatta kaydetmek istiyorsunuz?</string>
+    <string name="choose_share_format">Hangi formatta paylaşmak istiyorsunuz?</string>
+    <string name="save_jpeg_success">%d JPEG cihazınıza kaydedildi.</string>
+    <string name="save_file_success">Dosya başarıyla kaydedildi.</string>
+    <string name="error_prefix">Hata: %s</string>
+    <string name="no_pages_available">Kayıtlı sayfa bulunamadı.</string>
+    <string name="email_body_template">-- Lütfen sorununuzu buraya yazın --\n\n\n-- Cihaz Bilgileri --\nModel: %1$s\nAndroid Sürümü: %2$s (API %3$d)\nUygulama Sürümü: %4$s</string>
+    <string name="unexpected_error">Beklenmeyen bir hata oluştu</string>
+    <string name="folder_name_empty">Klasör adı boş olamaz</string>
 </resources>

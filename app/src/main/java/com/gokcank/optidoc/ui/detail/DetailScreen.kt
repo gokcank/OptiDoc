@@ -62,7 +62,7 @@ fun DetailScreen(
                         try {
                             context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_file)))
                         } catch (e: Exception) {
-                            android.widget.Toast.makeText(context, "Hata: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
                         }
                     } else {
                         val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -77,7 +77,7 @@ fun DetailScreen(
                         try {
                             context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_file)))
                         } catch (e: Exception) {
-                            android.widget.Toast.makeText(context, "Hata: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -85,7 +85,7 @@ fun DetailScreen(
                     snackbarHostState.showSnackbar(event.message)
                 }
                 is ActionEvent.Error -> {
-                    snackbarHostState.showSnackbar("Hata: ${event.message}")
+                    snackbarHostState.showSnackbar(context.getString(R.string.error_prefix, event.message))
                 }
             }
         }
@@ -96,25 +96,10 @@ fun DetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    val title = (uiState as? DetailUiState.Success)?.document?.title
-                        ?: stringResource(R.string.detail_title)
-                    Text(title, style = MaterialTheme.typography.titleLarge)
-                },
+                title = { Text(stringResource(R.string.detail_title), style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cancel)
-                        )
-                    }
-                },
-                actions = {
-                    if (isExporting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(end = 16.dp).size(20.dp),
-                            strokeWidth = 2.dp
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -124,40 +109,42 @@ fun DetailScreen(
             )
         },
         bottomBar = {
-            if (uiState is DetailUiState.Success) {
-                val document = (uiState as DetailUiState.Success).document
-                DetailBottomBar(
-                    document = document,
-                    onSaveClick = {
-                        pendingAction = IntentAction.SAVE
-                        showFormatDialog = true
-                    },
-                    onShareClick = {
-                        pendingAction = IntentAction.SHARE
-                        showFormatDialog = true
-                    },
-                    onEditClick = { onEdit(document.id) }
-                )
-                
-                if (showFormatDialog && pendingAction != null) {
-                    FormatSelectionDialog(
-                        document = document,
-                        action = pendingAction!!,
-                        onDismiss = { showFormatDialog = false },
-                        onFormatSelected = { format ->
-                            val action = pendingAction!!
-                            if (format == com.gokcank.optidoc.domain.model.ExportFormat.JPEG) {
-                                viewModel.performActionAsJpeg(action)
-                            } else {
-                                val uriStr = document.getOutputUri()
-                                if (uriStr != null) {
-                                    val mimeType = if (format == com.gokcank.optidoc.domain.model.ExportFormat.TXT) "text/plain" else "application/pdf"
-                                    viewModel.performExistingAction(uriStr, mimeType, action, document.title)
+            when (val state = uiState) {
+                is DetailUiState.Success -> {
+                    DetailBottomBar(
+                        document = state.document,
+                        onSaveClick = {
+                            pendingAction = IntentAction.SAVE
+                            showFormatDialog = true
+                        },
+                        onShareClick = {
+                            pendingAction = IntentAction.SHARE
+                            showFormatDialog = true
+                        },
+                        onEditClick = { onEdit(state.document.id) }
+                    )
+                    
+                    if (showFormatDialog && pendingAction != null) {
+                        FormatSelectionDialog(
+                            document = state.document,
+                            action = pendingAction!!,
+                            onDismiss = { showFormatDialog = false },
+                            onFormatSelected = { format ->
+                                val action = pendingAction!!
+                                if (format == com.gokcank.optidoc.domain.model.ExportFormat.JPEG) {
+                                    viewModel.performActionAsJpeg(action)
+                                } else {
+                                    val uriStr = state.document.getOutputUri()
+                                    if (uriStr != null) {
+                                        val mimeType = if (format == com.gokcank.optidoc.domain.model.ExportFormat.TXT) "text/plain" else "application/pdf"
+                                        viewModel.performExistingAction(uriStr, mimeType, action, state.document.title)
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
+                else -> {}
             }
         }
     ) { paddingValues ->
@@ -172,7 +159,7 @@ fun DetailScreen(
                 }
                 is DetailUiState.NotFound -> {
                     Text(
-                        text = "Document not found.",
+                        text = stringResource(R.string.error_document_not_found),
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -190,7 +177,7 @@ fun DetailScreen(
 private fun DocumentPagesPager(pages: List<DocumentPage>) {
     if (pages.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No pages available.")
+            Text(stringResource(R.string.no_pages_available))
         }
         return
     }
@@ -211,7 +198,7 @@ private fun DocumentPagesPager(pages: List<DocumentPage>) {
                     .data(Uri.parse(page.imageUri))
                     .crossfade(true)
                     .build(),
-                contentDescription = "Page ${pageIndex + 1}",
+                contentDescription = stringResource(R.string.page_number, pageIndex + 1),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
@@ -257,17 +244,18 @@ private fun DetailBottomBar(
                     onClick = onEditClick,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape // Pill shape
+                    shape = androidx.compose.foundation.shape.CircleShape
                 ) {
-                    Text("Devam Et / Düzenle", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.continue_edit), style = MaterialTheme.typography.titleMedium)
                 }
             } else {
                 OutlinedButton(
                     onClick = onSaveClick,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape // Pill shape
+                    shape = androidx.compose.foundation.shape.CircleShape
                 ) {
+                    Icon(Icons.Default.Image, contentDescription = null, Modifier.padding(end = 8.dp))
                     Text(stringResource(R.string.save_to_device), style = MaterialTheme.typography.titleMedium)
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -275,10 +263,9 @@ private fun DetailBottomBar(
                     onClick = onShareClick,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape // Pill shape
+                    shape = androidx.compose.foundation.shape.CircleShape
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.Default.Share, contentDescription = null, Modifier.padding(end = 8.dp))
                     Text(stringResource(R.string.share), style = MaterialTheme.typography.titleMedium)
                 }
             }
@@ -345,9 +332,9 @@ private fun FormatSelectionDialog(
     }
 
     val titleText = if (action == IntentAction.SAVE) {
-        "Hangi formatta kaydetmek istiyorsunuz?"
+        stringResource(R.string.choose_save_format)
     } else {
-        "Hangi formatta paylaşmak istiyorsunuz?"
+        stringResource(R.string.choose_share_format)
     }
 
     AlertDialog(

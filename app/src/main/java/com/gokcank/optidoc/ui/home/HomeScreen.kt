@@ -232,7 +232,7 @@ fun HomeScreen(
                         if (state.documents.isEmpty()) {
                             if (searchQuery.isNotBlank()) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text("Sonuç bulunamadı", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(stringResource(R.string.no_results_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             } else {
                                 Box(modifier = Modifier.fillMaxSize()) {
@@ -288,8 +288,8 @@ fun HomeScreen(
     documentToDelete?.let { doc ->
         AlertDialog(
             onDismissRequest = { documentToDelete = null },
-            title = { Text("Belgeyi Sil") },
-            text = { Text("\"${doc.title}\" belgesini silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_document_title)) },
+            text = { Text(stringResource(R.string.delete_document_confirm, doc.title)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -297,12 +297,12 @@ fun HomeScreen(
                         documentToDelete = null
                     }
                 ) {
-                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete_document), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { documentToDelete = null }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -311,8 +311,8 @@ fun HomeScreen(
     if (showDeleteSelectedDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteSelectedDialog = false },
-            title = { Text("Seçili Belgeleri Sil") },
-            text = { Text("${selectedIds.size} belgeyi silmek istediğinize emin misiniz?") },
+            title = { Text(stringResource(R.string.delete_selected_title)) },
+            text = { Text(stringResource(R.string.delete_selected_confirm, selectedIds.size)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -321,12 +321,12 @@ fun HomeScreen(
                         showDeleteSelectedDialog = false
                     }
                 ) {
-                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete_document), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteSelectedDialog = false }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -335,8 +335,8 @@ fun HomeScreen(
     folderToDelete?.let { folder ->
         AlertDialog(
             onDismissRequest = { folderToDelete = null },
-            title = { Text("Klasörü Sil") },
-            text = { Text("\"${folder.name}\" klasörünü silmek istediğinize emin misiniz? (İçindeki belgeler silinmez, klasörden çıkarılır)") },
+            title = { Text(stringResource(R.string.delete_folder_title)) },
+            text = { Text(stringResource(R.string.delete_folder_confirm, folder.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -344,12 +344,12 @@ fun HomeScreen(
                         folderToDelete = null
                     }
                 ) {
-                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete_document), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { folderToDelete = null }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -388,7 +388,7 @@ private fun FolderChipsRow(
         FilterChip(
             selected = selectedFolderId == null,
             onClick = { onSelectFolder(null) },
-            label = { Text("Tümü") },
+            label = { Text(stringResource(R.string.folder_all)) },
             leadingIcon = {
                 Icon(
                     imageVector = if (selectedFolderId == null) Icons.Default.FolderOpen else Icons.Default.Folder,
@@ -412,7 +412,7 @@ private fun FolderChipsRow(
         // Yeni Klasör Ekle Chip
         AssistChip(
             onClick = onCreateFolderClick,
-            label = { Text("Yeni Klasör") },
+            label = { Text(stringResource(R.string.folder_new)) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.CreateNewFolder,
@@ -451,7 +451,7 @@ private fun OptiDocFolderChip(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Klasörü Sil",
+                        contentDescription = stringResource(R.string.delete_folder_title),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
@@ -473,12 +473,12 @@ private fun CreateFolderDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Yeni Klasör Oluştur") },
+        title = { Text(stringResource(R.string.create_folder_title)) },
         text = {
             OutlinedTextField(
                 value = folderName,
                 onValueChange = { folderName = it },
-                label = { Text("Klasör Adı") },
+                label = { Text(stringResource(R.string.folder_name_hint)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -488,12 +488,12 @@ private fun CreateFolderDialog(
                 onClick = { if (folderName.isNotBlank()) onCreate(folderName.trim()) },
                 enabled = folderName.isNotBlank()
             ) {
-                Text("Oluştur")
+                Text(stringResource(R.string.create))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -508,7 +508,7 @@ private fun MoveToFolderDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Klasöre Taşı") },
+        title = { Text(stringResource(R.string.move_to_folder)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(
@@ -519,7 +519,7 @@ private fun MoveToFolderDialog(
                     )
                 ) {
                     Icon(Icons.Default.Folder, contentDescription = null, Modifier.padding(end = 8.dp))
-                    Text("Klasörsüz (Ana Dizin)", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.folder_none), modifier = Modifier.weight(1f))
                 }
                 folders.forEach { folder ->
                     TextButton(
@@ -538,7 +538,7 @@ private fun MoveToFolderDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -585,7 +585,7 @@ private fun BoxScope.EmptyState() {
         Spacer(modifier = Modifier.height(16.dp))
         FeatureItem(icon = "🔍", text = stringResource(R.string.feature_ocr))
         Spacer(modifier = Modifier.height(16.dp))
-        FeatureItem(icon = "📁", text = "Belgeleri Klasörlerde Düzenleme")
+        FeatureItem(icon = "📁", text = stringResource(R.string.feature_folder))
 
         Spacer(modifier = Modifier.height(48.dp))
     }
@@ -790,7 +790,7 @@ private fun DocumentCard(
                     onDismissRequest = { showMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Klasöre Taşı") },
+                        text = { Text(stringResource(R.string.move_to_folder)) },
                         onClick = {
                             showMenu = false
                             onMoveToFolder()

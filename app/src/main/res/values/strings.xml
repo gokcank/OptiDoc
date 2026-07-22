@@ -86,6 +86,36 @@
     <string name="share">Share</string>
     <string name="error_save_jpeg">Failed to save JPEG</string>
     <string name="error_save_file">Failed to save file</string>
+
+    <!-- Folders & Dynamic Dialogs -->
+    <string name="folder_all">All</string>
+    <string name="folder_new">+ New Folder</string>
+    <string name="create_folder_title">Create New Folder</string>
+    <string name="folder_name_hint">Folder Name</string>
+    <string name="create">Create</string>
+    <string name="delete_document_title">Delete Document</string>
+    <string name="delete_document_confirm">Are you sure you want to delete \"%s\"?</string>
+    <string name="delete_selected_title">Delete Selected Documents</string>
+    <string name="delete_selected_confirm">Are you sure you want to delete %d documents?</string>
+    <string name="delete_folder_title">Delete Folder</string>
+    <string name="delete_folder_confirm">Are you sure you want to delete folder \"%s\"? (Documents inside will not be deleted)</string>
+    <string name="move_to_folder">Move to Folder</string>
+    <string name="folder_none">No Folder (Root)</string>
+    <string name="feature_folder">Organize documents in custom folders</string>
+    <string name="no_results_found">No results found</string>
+    <string name="select_format_desc">Select export format for text and page images.</string>
+    <string name="move_left">Move Left</string>
+    <string name="move_right">Move Right</string>
+    <string name="continue_edit">Continue / Edit</string>
+    <string name="choose_save_format">Choose format to save</string>
+    <string name="choose_share_format">Choose format to share</string>
+    <string name="save_jpeg_success">%d JPEGs saved to device.</string>
+    <string name="save_file_success">File saved successfully.</string>
+    <string name="error_prefix">Error: %s</string>
+    <string name="no_pages_available">No pages available.</string>
+    <string name="email_body_template">-- Please describe your issue here --\n\n\n-- Device Info --\nModel: %1$s\nAndroid Version: %2$s (API %3$d)\nApp Version: %4$s</string>
+    <string name="unexpected_error">An unexpected error occurred</string>
+    <string name="folder_name_empty">Folder name cannot be empty</string>
 </resources>
 
 

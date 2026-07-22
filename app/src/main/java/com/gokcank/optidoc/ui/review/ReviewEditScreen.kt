@@ -95,7 +95,7 @@ fun ReviewEditScreen(
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
             title = { Text(stringResource(R.string.review_export_title)) },
-            text = { Text("Metni ve sayfa görsellerini kaydetmek için format seçin.") },
+            text = { Text(stringResource(R.string.select_format_desc)) },
             confirmButton = {
                 TextButton(onClick = {
                     showExportDialog = false
@@ -162,7 +162,7 @@ private fun EditPager(
                             .data(Uri.parse(page.imageUri))
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Page Image",
+                        contentDescription = stringResource(R.string.page_number, pageIndex + 1),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -196,7 +196,7 @@ private fun EditPager(
                 onClick = { onMovePage(pagerState.currentPage, pagerState.currentPage - 1) },
                 enabled = pagerState.currentPage > 0
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Sola Taşı")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.move_left))
             }
 
             Text(
@@ -209,7 +209,7 @@ private fun EditPager(
                 onClick = { onMovePage(pagerState.currentPage, pagerState.currentPage + 1) },
                 enabled = pagerState.currentPage < pages.size - 1
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Sağa Taşı")
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(R.string.move_right))
             }
         }
     }

@@ -61,15 +61,13 @@ fun AboutDialog(
 private fun sendBugReportEmail(context: Context) {
     val email = "destek.gokcank@gmail.com"
     val subject = context.getString(R.string.bug_report)
-    val body = """
-        -- Lütfen sorununuzu buraya yazın --
-        
-        
-        -- Cihaz Bilgileri --
-        Model: ${Build.MODEL}
-        Android Sürümü: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
-        Uygulama Sürümü: ${BuildConfig.VERSION_NAME}
-    """.trimIndent()
+    val body = context.getString(
+        R.string.email_body_template,
+        Build.MODEL,
+        Build.VERSION.RELEASE,
+        Build.VERSION.SDK_INT,
+        BuildConfig.VERSION_NAME
+    )
 
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = Uri.parse("mailto:")
