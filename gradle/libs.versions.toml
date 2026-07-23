@@ -35,6 +35,7 @@ androidx-datastore-preferences     = { module = "androidx.datastore:datastore-pr
 androidx-compose-bom               = { group  = "androidx.compose", name = "compose-bom",   version.ref = "androidxComposeBom" }
 androidx-compose-material3         = { group  = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui                = { group  = "androidx.compose.ui",  name = "ui" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
 androidx-compose-ui-tooling-preview= { group  = "androidx.compose.ui",  name = "ui-tooling-preview" }
 androidx-compose-ui-tooling        = { group  = "androidx.compose.ui",  name = "ui-tooling" }
 androidx-compose-ui-test-junit4    = { group  = "androidx.compose.ui",  name = "ui-test-junit4" }
@@ -57,6 +58,7 @@ hilt-navigation-compose            = { module = "androidx.hilt:hilt-navigation-c
 room-runtime                       = { module = "androidx.room:room-runtime",                version.ref = "room" }
 room-ktx                           = { module = "androidx.room:room-ktx",                    version.ref = "room" }
 room-compiler                      = { module = "androidx.room:room-compiler",               version.ref = "room" }
+room-testing                       = { module = "androidx.room:room-testing",                version.ref = "room" }
 
 # Coroutines
 kotlinx-coroutines-android         = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }

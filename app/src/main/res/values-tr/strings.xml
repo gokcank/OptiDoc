@@ -116,4 +116,8 @@
     <string name="email_body_template">-- Lütfen sorununuzu buraya yazın --\n\n\n-- Cihaz Bilgileri --\nModel: %1$s\nAndroid Sürümü: %2$s (API %3$d)\nUygulama Sürümü: %4$s</string>
     <string name="unexpected_error">Beklenmeyen bir hata oluştu</string>
     <string name="folder_name_empty">Klasör adı boş olamaz</string>
+    <string name="back">Geri</string>
+    <string name="ocr_text_label">Çıkarılan Metin</string>
+    <string name="page_indicator">%1$d / %2$d</string>
+    <string name="save_file">Dosyayı Kaydet</string>
 </resources>

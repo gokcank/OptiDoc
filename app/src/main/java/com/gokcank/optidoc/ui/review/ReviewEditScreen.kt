@@ -11,10 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -92,35 +96,82 @@ fun ReviewEditScreen(
     }
 
     if (showExportDialog) {
-        AlertDialog(
-            onDismissRequest = { showExportDialog = false },
-            title = { Text(stringResource(R.string.review_export_title)) },
-            text = { Text(stringResource(R.string.select_format_desc)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showExportDialog = false
-                    viewModel.exportDocument(ExportFormat.PDF)
-                }) {
-                    Text(stringResource(R.string.export_format_pdf))
-                }
-            },
-            dismissButton = {
-                Row {
-                    TextButton(onClick = {
-                        showExportDialog = false
-                        viewModel.exportDocument(ExportFormat.TXT)
-                    }) {
-                        Text(stringResource(R.string.export_format_txt))
-                    }
-                    TextButton(onClick = {
-                        showExportDialog = false
-                        viewModel.exportDocument(ExportFormat.JPEG)
-                    }) {
-                        Text("JPEG")
+        ExportFormatBottomSheet(
+            onDismiss = { showExportDialog = false },
+            onFormatSelected = { format ->
+                viewModel.exportDocument(format)
+            }
+        )
+    }
+}
+
+private data class FormatOptionItem(
+    val format: ExportFormat,
+    val label: String,
+    val icon: ImageVector
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ExportFormatBottomSheet(
+    onDismiss: () -> Unit,
+    onFormatSelected: (ExportFormat) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val formats = listOf(
+        FormatOptionItem(ExportFormat.PDF, stringResource(R.string.export_format_pdf), Icons.Default.PictureAsPdf),
+        FormatOptionItem(ExportFormat.TXT, stringResource(R.string.export_format_txt), Icons.Default.Description),
+        FormatOptionItem(ExportFormat.JPEG, "JPEG Image", Icons.Default.Image)
+    )
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.review_export_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            Text(
+                text = stringResource(R.string.select_format_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            formats.forEach { item ->
+                Surface(
+                    onClick = {
+                        onFormatSelected(item.format)
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(item.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = item.label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
-        )
+        }
     }
 }
 

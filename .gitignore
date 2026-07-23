@@ -1,24 +1,36 @@
+# ---------- IDE & Build Directories ----------
+.gradle/
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+/.idea/caches/
+/.idea/libraries/
+
+# ---------- IDE & System Files ----------
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+logcat*.txt
+crash.txt
+
+# ---------- Credentials & Key Stores ----------
+/local.properties
 local.properties
 *.keystore
 *.jks
-logcat*.txt
-crash.txt
+google-services.json
+
+# ---------- Build Outputs & Bundles ----------
+*.apk
+*.aab
+
+# ---------- Local Notes & Workspace Assets ----------
 Store Assets/
+.gemini/
 scratch_list.md
 AI_HANDOFF.md
-.gemini/
 OptiDoc Konuşma Geçmişi.md

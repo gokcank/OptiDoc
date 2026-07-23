@@ -9,12 +9,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -28,6 +31,7 @@ import coil.request.ImageRequest
 import com.gokcank.optidoc.R
 import com.gokcank.optidoc.domain.model.DocumentOutput
 import com.gokcank.optidoc.domain.model.DocumentPage
+import com.gokcank.optidoc.domain.model.ExportFormat
 import com.gokcank.optidoc.domain.model.ScannedDocument
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,13 +103,9 @@ fun DetailScreen(
                 title = { Text(stringResource(R.string.detail_title), style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                }
             )
         },
         bottomBar = {
@@ -123,20 +123,19 @@ fun DetailScreen(
                         },
                         onEditClick = { onEdit(state.document.id) }
                     )
-                    
                     if (showFormatDialog && pendingAction != null) {
-                        FormatSelectionDialog(
+                        FormatSelectionBottomSheet(
                             document = state.document,
                             action = pendingAction!!,
                             onDismiss = { showFormatDialog = false },
                             onFormatSelected = { format ->
                                 val action = pendingAction!!
-                                if (format == com.gokcank.optidoc.domain.model.ExportFormat.JPEG) {
+                                if (format == ExportFormat.JPEG) {
                                     viewModel.performActionAsJpeg(action)
                                 } else {
                                     val uriStr = state.document.getOutputUri()
                                     if (uriStr != null) {
-                                        val mimeType = if (format == com.gokcank.optidoc.domain.model.ExportFormat.TXT) "text/plain" else "application/pdf"
+                                        val mimeType = if (format == ExportFormat.TXT) "text/plain" else "application/pdf"
                                         viewModel.performExistingAction(uriStr, mimeType, action, state.document.title)
                                     }
                                 }
@@ -165,56 +164,96 @@ fun DetailScreen(
                     )
                 }
                 is DetailUiState.Success -> {
-                    DocumentPagesPager(pages = state.pages)
+                    val pagerState = rememberPagerState(pageCount = { state.pages.size })
+
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) { pageIndex ->
+                            val page = state.pages[pageIndex]
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(0.5f)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium)
+                                        .padding(8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(Uri.parse(page.imageUri))
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = stringResource(R.string.page_number, pageIndex + 1),
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+
+                                if (!page.ocrText.isNullOrBlank()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(0.5f),
+                                        shape = MaterialTheme.shapes.medium,
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(16.dp)
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.ocr_text_label),
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = page.ocrText,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (state.pages.size > 1) {
+                            Text(
+                                text = stringResource(R.string.page_indicator, pagerState.currentPage + 1, state.pages.size),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .padding(bottom = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (isExporting) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun DocumentPagesPager(pages: List<DocumentPage>) {
-    if (pages.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.no_pages_available))
-        }
-        return
-    }
-
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(MaterialTheme.colorScheme.surface)
-        ) { pageIndex ->
-            val page = pages[pageIndex]
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(Uri.parse(page.imageUri))
-                    .crossfade(true)
-                    .build(),
-                contentDescription = stringResource(R.string.page_number, pageIndex + 1),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            )
-        }
-
-        Text(
-            text = "${pagerState.currentPage + 1} / ${pages.size}",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        )
     }
 }
 
@@ -225,48 +264,28 @@ private fun DetailBottomBar(
     onShareClick: () -> Unit,
     onEditClick: () -> Unit
 ) {
-    val isReady = document.output !is DocumentOutput.None
-
-    BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-        tonalElevation = 0.dp
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        tonalElevation = 3.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (!isReady) {
-                Button(
-                    onClick = onEditClick,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape
-                ) {
-                    Text(stringResource(R.string.continue_edit), style = MaterialTheme.typography.titleMedium)
-                }
-            } else {
-                OutlinedButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape
-                ) {
-                    Icon(Icons.Default.Image, contentDescription = null, Modifier.padding(end = 8.dp))
-                    Text(stringResource(R.string.save_to_device), style = MaterialTheme.typography.titleMedium)
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = onShareClick,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape
-                ) {
-                    Icon(Icons.Default.Share, contentDescription = null, Modifier.padding(end = 8.dp))
-                    Text(stringResource(R.string.share), style = MaterialTheme.typography.titleMedium)
+            OutlinedButton(onClick = onSaveClick) {
+                Text(stringResource(R.string.save_file))
+            }
+            Button(onClick = onShareClick) {
+                Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.share_file))
+            }
+            if (document.output is DocumentOutput.OcrExport) {
+                TextButton(onClick = onEditClick) {
+                    Text(stringResource(R.string.continue_edit))
                 }
             }
         }
@@ -309,23 +328,25 @@ private fun getShareableUri(context: android.content.Context, uriStr: String, ti
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FormatSelectionDialog(
+private fun FormatSelectionBottomSheet(
     document: ScannedDocument,
     action: IntentAction,
     onDismiss: () -> Unit,
-    onFormatSelected: (com.gokcank.optidoc.domain.model.ExportFormat) -> Unit
+    onFormatSelected: (ExportFormat) -> Unit
 ) {
-    val availableFormats = mutableListOf<com.gokcank.optidoc.domain.model.ExportFormat>()
-    availableFormats.add(com.gokcank.optidoc.domain.model.ExportFormat.JPEG)
+    val sheetState = rememberModalBottomSheetState()
+    val availableFormats = mutableListOf<ExportFormat>()
+    availableFormats.add(ExportFormat.JPEG)
     
     when (val out = document.output) {
-        is DocumentOutput.DirectPdf -> availableFormats.add(0, com.gokcank.optidoc.domain.model.ExportFormat.PDF)
+        is DocumentOutput.DirectPdf -> availableFormats.add(0, ExportFormat.PDF)
         is DocumentOutput.OcrExport -> {
-            if (out.format == com.gokcank.optidoc.domain.model.ExportFormat.TXT) {
-                availableFormats.add(0, com.gokcank.optidoc.domain.model.ExportFormat.TXT)
-            } else if (out.format == com.gokcank.optidoc.domain.model.ExportFormat.PDF) {
-                availableFormats.add(0, com.gokcank.optidoc.domain.model.ExportFormat.PDF)
+            if (out.format == ExportFormat.TXT) {
+                availableFormats.add(0, ExportFormat.TXT)
+            } else if (out.format == ExportFormat.PDF) {
+                availableFormats.add(0, ExportFormat.PDF)
             }
         }
         else -> {}
@@ -337,29 +358,56 @@ private fun FormatSelectionDialog(
         stringResource(R.string.choose_share_format)
     }
 
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text(titleText) },
-        text = {
-            Column {
-                availableFormats.forEach { format ->
-                    TextButton(
-                        onClick = {
-                            onFormatSelected(format)
-                            onDismiss()
-                        },
-                        modifier = Modifier.fillMaxWidth()
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
+        ) {
+            Text(
+                text = titleText,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            availableFormats.forEach { format ->
+                val icon: ImageVector = when (format) {
+                    ExportFormat.PDF -> Icons.Default.PictureAsPdf
+                    ExportFormat.JPEG -> Icons.Default.Image
+                    ExportFormat.TXT -> Icons.Default.Description
+                }
+                val formatLabel = when (format) {
+                    ExportFormat.PDF -> stringResource(R.string.export_format_pdf)
+                    ExportFormat.JPEG -> "JPEG Image"
+                    ExportFormat.TXT -> stringResource(R.string.export_format_txt)
+                }
+                Surface(
+                    onClick = {
+                        onFormatSelected(format)
+                        onDismiss()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(format.name)
+                        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = formatLabel,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
         }
-    )
+    }
 }

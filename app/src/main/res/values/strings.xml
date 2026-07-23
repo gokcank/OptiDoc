@@ -116,6 +116,10 @@
     <string name="email_body_template">-- Please describe your issue here --\n\n\n-- Device Info --\nModel: %1$s\nAndroid Version: %2$s (API %3$d)\nApp Version: %4$s</string>
     <string name="unexpected_error">An unexpected error occurred</string>
     <string name="folder_name_empty">Folder name cannot be empty</string>
+    <string name="back">Back</string>
+    <string name="ocr_text_label">Extracted Text</string>
+    <string name="page_indicator">%1$d / %2$d</string>
+    <string name="save_file">Save File</string>
 </resources>
 
 

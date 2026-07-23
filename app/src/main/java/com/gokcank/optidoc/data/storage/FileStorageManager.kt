@@ -22,7 +22,7 @@ import javax.inject.Singleton
  * kopyalayarak görsellerin kalıcı olmasını sağlar.
  */
 @Singleton
-class FileStorageManager @Inject constructor(
+open class FileStorageManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val dispatcherProvider: DispatcherProvider
 ) {
@@ -97,7 +97,7 @@ class FileStorageManager @Inject constructor(
         }
 
     /** Dokümanın tüm kalıcı dosyalarını siler. */
-    suspend fun deleteDocumentFiles(documentId: Long) = withContext(dispatcherProvider.io) {
+    open suspend fun deleteDocumentFiles(documentId: Long) = withContext(dispatcherProvider.io) {
         try {
             documentDir(documentId).deleteRecursively()
         } catch (e: Exception) {
