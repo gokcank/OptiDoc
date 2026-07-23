@@ -10,7 +10,7 @@
   [![Hilt](https://img.shields.io/badge/HILT-DAGGER-000000?style=for-the-badge&logo=dagger&logoColor=white)](https://dagger.dev/hilt/)
   [![Google ML Kit](https://img.shields.io/badge/GOOGLE%20ML%20KIT-FFCA28?style=for-the-badge&logo=google&logoColor=black)](https://developers.google.com/ml-kit)
   [![Room DB](https://img.shields.io/badge/ROOM%20DB-4285F4?style=for-the-badge&logo=sqlite&logoColor=white)](https://developer.android.com/training/data-storage/room)<br>
-  [![Version](https://img.shields.io/badge/VERSION-V1.2.1-007EC6?style=for-the-badge)](https://github.com/gokcank/OptiDoc)
+  [![Version](https://img.shields.io/badge/VERSION-V1.2.2-007EC6?style=for-the-badge)](https://github.com/gokcank/OptiDoc)
   [![License](https://img.shields.io/badge/LICENSE-MIT-4c1?style=for-the-badge)](LICENSE)
 
   <br><br>
