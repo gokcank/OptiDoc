@@ -30,6 +30,7 @@ google-services.json
 
 # ---------- Local Notes & Workspace Assets ----------
 Store Assets/
+store_assets/
 .gemini/
 scratch_list.md
 AI_HANDOFF.md

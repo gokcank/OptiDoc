@@ -1,8 +1,10 @@
 <div align="center">
-  <img src="Store%20Assets/store_logo_512.png" alt="OptiDoc Logo" width="140" height="140">
   <h1>OptiDoc 📄⚡</h1>
   <p><strong>A Smart Document Scanner & OCR App</strong><br><em>Akıllı Belge Tarayıcı ve OCR Uygulaması</em></p>
   <br>
+
+  <img src="GitHub%20Showcase.png" alt="OptiDoc GitHub Showcase" width="100%">
+  <br><br>
 
   [![Android](https://img.shields.io/badge/ANDROID-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
   [![Kotlin](https://img.shields.io/badge/KOTLIN-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
@@ -12,9 +14,6 @@
   [![Room DB](https://img.shields.io/badge/ROOM%20DB-4285F4?style=for-the-badge&logo=sqlite&logoColor=white)](https://developer.android.com/training/data-storage/room)<br>
   [![Version](https://img.shields.io/badge/VERSION-V1.2.2-007EC6?style=for-the-badge)](https://github.com/gokcank/OptiDoc)
   [![License](https://img.shields.io/badge/LICENSE-MIT-4c1?style=for-the-badge)](LICENSE)
-
-  <br><br>
-  <img src="Store%20Assets/optidoc_showcase.png" alt="OptiDoc App Showcase" width="100%">
 </div>
 
 ---
