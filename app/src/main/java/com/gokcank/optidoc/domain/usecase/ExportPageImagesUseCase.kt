@@ -17,7 +17,11 @@ class ExportPageImagesUseCase @Inject constructor(
     private val documentRepository: DocumentRepository,
     private val exportRepository: ExportRepository
 ) {
-    suspend operator fun invoke(documentId: Long): Result<List<String>> {
+    suspend operator fun invoke(
+        documentId: Long,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ): Result<List<String>> {
         val pair = documentRepository.getDocumentWithPages(documentId).first()
             ?: return Result.failure(IllegalArgumentException("Belge bulunamadı: $documentId"))
         val (document, pages) = pair
@@ -25,7 +29,9 @@ class ExportPageImagesUseCase @Inject constructor(
         return exportRepository.exportImages(
             documentId = documentId,
             pageImageUris = sortedUris,
-            title = document.title
+            title = document.title,
+            watermarkOptions = watermarkOptions,
+            signatureOptions = signatureOptions
         )
     }
 }

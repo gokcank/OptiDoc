@@ -48,12 +48,6 @@ interface DocumentRepository {
 
     // ── Klasör İşlemleri ─────────────────────────────────────────────────────
 
-    /** Belirli bir klasördeki belgeleri yayar. */
-    fun getDocumentsByFolder(folderId: Long): Flow<List<ScannedDocument>>
-
-    /** Klasörsüz (ana dizindeki) belgeleri yayar. */
-    fun getDocumentsWithoutFolder(): Flow<List<ScannedDocument>>
-
     /** Belgeyi bir klasöre taşır veya klasörden çıkarır (folderId = null). */
     suspend fun moveToFolder(documentId: Long, folderId: Long?)
 

@@ -3,6 +3,7 @@ package com.gokcank.optidoc.data.export
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
@@ -55,7 +56,9 @@ class ExportRepositoryImpl @Inject constructor(
         documentId: Long,
         text: String,
         format: ExportFormat,
-        title: String
+        title: String,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions?,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions?
     ): Result<String> = withContext(dispatcherProvider.io) {
         try {
             val fileName = safeTitle(title)
@@ -68,7 +71,7 @@ class ExportRepositoryImpl @Inject constructor(
                 ExportFormat.PDF -> writePublic(
                     fileName = "$fileName.pdf",
                     mimeType = "application/pdf"
-                ) { out -> writePdfToStream(text, out) }
+                ) { out -> writePdfToStream(text, out, watermarkOptions, signatureOptions) }
 
                 ExportFormat.JPEG -> throw IllegalArgumentException(
                     "JPEG export için exportImages() kullanın."
@@ -87,7 +90,9 @@ class ExportRepositoryImpl @Inject constructor(
     override suspend fun exportImages(
         documentId: Long,
         pageImageUris: List<String>,
-        title: String
+        title: String,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions?,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions?
     ): Result<List<String>> = withContext(dispatcherProvider.io) {
         try {
             val safeBase = safeTitle(title)
@@ -100,7 +105,30 @@ class ExportRepositoryImpl @Inject constructor(
                     } else {
                         context.contentResolver.openInputStream(uri)
                     }
-                    input?.use { it.copyTo(out) } ?: throw IOException("Görsel açılamadı: $uriStr")
+                    if (input != null) {
+                        if (watermarkOptions != null || signatureOptions?.bitmap != null) {
+                            val originalBmp = android.graphics.BitmapFactory.decodeStream(input)
+                            input.close()
+                            if (originalBmp != null) {
+                                val mutableBmp = originalBmp.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                                val canvas = android.graphics.Canvas(mutableBmp)
+                                drawWatermarkAndSignature(
+                                    canvas = canvas,
+                                    width = mutableBmp.width.toFloat(),
+                                    height = mutableBmp.height.toFloat(),
+                                    watermarkOptions = watermarkOptions,
+                                    signatureOptions = signatureOptions
+                                )
+                                mutableBmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 92, out)
+                            } else {
+                                throw IOException("Görsel çözümlenemedi: $uriStr")
+                            }
+                        } else {
+                            input.use { it.copyTo(out) }
+                        }
+                    } else {
+                        throw IOException("Görsel açılamadı: $uriStr")
+                    }
                 }
             }
             Result.success(uris)
@@ -221,7 +249,12 @@ class ExportRepositoryImpl @Inject constructor(
 
     // ── PDF üretimi ───────────────────────────────────────────────────────────
 
-    private fun writePdfToStream(text: String, outputStream: OutputStream) {
+    private fun writePdfToStream(
+        text: String,
+        outputStream: OutputStream,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ) {
         val document = PdfDocument()
         try {
             val paint = TextPaint().apply {
@@ -236,8 +269,19 @@ class ExportRepositoryImpl @Inject constructor(
             var pageNumber = 1
             var page = document.startPage(newPageInfo(pageNumber))
 
-            fun startNewPage() {
+            fun finishCurrentPage() {
+                drawWatermarkAndSignature(
+                    canvas = page.canvas,
+                    width = PDF_PAGE_WIDTH,
+                    height = PDF_PAGE_HEIGHT,
+                    watermarkOptions = watermarkOptions,
+                    signatureOptions = signatureOptions
+                )
                 document.finishPage(page)
+            }
+
+            fun startNewPage() {
+                finishCurrentPage()
                 pageNumber += 1
                 page = document.startPage(newPageInfo(pageNumber))
             }
@@ -274,10 +318,57 @@ class ExportRepositoryImpl @Inject constructor(
                 }
             }
 
-            document.finishPage(page)
+            finishCurrentPage()
             document.writeTo(outputStream)
         } finally {
             document.close()
+        }
+    }
+
+    private fun drawWatermarkAndSignature(
+        canvas: android.graphics.Canvas,
+        width: Float,
+        height: Float,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions?,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions?
+    ) {
+        // 1. Filigran Çizimi
+        watermarkOptions?.let { wm ->
+            if (wm.text.isNotBlank()) {
+                val wmPaint = TextPaint().apply {
+                    isAntiAlias = true
+                    color = try { Color.parseColor(wm.colorHex) } catch (_: Exception) { Color.GRAY }
+                    alpha = (wm.opacity.coerceIn(0f, 1f) * 255).toInt()
+                    textSize = (width * 0.12f).coerceAtLeast(32f)
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    textAlign = Paint.Align.CENTER
+                }
+                canvas.save()
+                canvas.rotate(wm.rotationDegrees, width / 2f, height / 2f)
+                canvas.drawText(wm.text, width / 2f, height / 2f, wmPaint)
+                canvas.restore()
+            }
+        }
+
+        // 2. Dijital İmza Çizimi
+        signatureOptions?.bitmap?.let { sigBmp ->
+            val sigPaint = Paint().apply {
+                isAntiAlias = true
+                alpha = (signatureOptions.opacity.coerceIn(0f, 1f) * 255).toInt()
+            }
+            val targetWidth = width * 0.35f * signatureOptions.scale.coerceIn(0.1f, 2f)
+            val aspectRatio = sigBmp.height.toFloat() / sigBmp.width.toFloat().coerceAtLeast(1f)
+            val targetHeight = targetWidth * aspectRatio
+
+            val margin = width * 0.05f
+            val left = when (signatureOptions.position) {
+                com.gokcank.optidoc.domain.model.SignaturePosition.BOTTOM_RIGHT -> width - targetWidth - margin
+                com.gokcank.optidoc.domain.model.SignaturePosition.BOTTOM_LEFT -> margin
+                com.gokcank.optidoc.domain.model.SignaturePosition.BOTTOM_CENTER -> (width - targetWidth) / 2f
+            }
+            val top = height - targetHeight - margin
+            val destRect = android.graphics.RectF(left, top, left + targetWidth, top + targetHeight)
+            canvas.drawBitmap(sigBmp, null, destRect, sigPaint)
         }
     }
 

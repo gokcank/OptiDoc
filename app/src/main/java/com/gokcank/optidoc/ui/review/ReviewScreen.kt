@@ -1,6 +1,5 @@
 package com.gokcank.optidoc.ui.review
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,9 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.gokcank.optidoc.R
+import com.gokcank.optidoc.ui.components.DocumentPageImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,11 +67,8 @@ fun ReviewScreen(
                             .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.extraLarge),
                         contentAlignment = Alignment.Center
                     ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(Uri.parse(pageImageUris.first()))
-                                .crossfade(true)
-                                .build(),
+                        DocumentPageImage(
+                            imageUri = pageImageUris.first(),
                             contentDescription = "Preview",
                             contentScale = ContentScale.Fit,
                             modifier = Modifier

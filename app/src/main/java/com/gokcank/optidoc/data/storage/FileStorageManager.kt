@@ -40,7 +40,7 @@ open class FileStorageManager @Inject constructor(
                 try {
                     val dest = File(dir, "page_${index + 1}.jpg")
                     copyUri(Uri.parse(uriStr), dest)
-                    dest.toURI().toString()
+                    Uri.fromFile(dest).toString()
                 } catch (e: Exception) {
                     Log.w(TAG, "Sayfa kopyalanamadı (index=$index): $uriStr", e)
                     uriStr // Orijinal URI'yi yedek olarak döndür
@@ -53,7 +53,7 @@ open class FileStorageManager @Inject constructor(
             try {
                 val dest = File(documentDir(documentId), "native.pdf")
                 copyUri(Uri.parse(uri), dest)
-                dest.toURI().toString()
+                Uri.fromFile(dest).toString()
             } catch (e: Exception) {
                 Log.w(TAG, "Native PDF kopyalanamadı: $uri", e)
                 uri
@@ -75,7 +75,7 @@ open class FileStorageManager @Inject constructor(
                 try {
                     val dest = File(tempDir, "temp_page_${index + 1}.jpg")
                     copyUri(Uri.parse(uriStr), dest)
-                    dest.toURI().toString()
+                    Uri.fromFile(dest).toString()
                 } catch (e: Exception) {
                     Log.w(TAG, "Geçici sayfa kopyalanamadı: $uriStr", e)
                     uriStr
@@ -86,7 +86,7 @@ open class FileStorageManager @Inject constructor(
                 try {
                     val dest = File(tempDir, "temp_native.pdf")
                     copyUri(Uri.parse(uriStr), dest)
-                    dest.toURI().toString()
+                    Uri.fromFile(dest).toString()
                 } catch (e: Exception) {
                     Log.w(TAG, "Geçici PDF kopyalanamadı: $uriStr", e)
                     uriStr
@@ -106,7 +106,14 @@ open class FileStorageManager @Inject constructor(
     }
 
     private fun copyUri(source: Uri, dest: File) {
-        context.contentResolver.openInputStream(source)?.use { input ->
+        val inputStream = if (source.scheme == "file") {
+            val path = source.path
+            if (path != null) java.io.FileInputStream(File(path)) else context.contentResolver.openInputStream(source)
+        } else {
+            context.contentResolver.openInputStream(source)
+        }
+
+        inputStream?.use { input ->
             FileOutputStream(dest).use { output ->
                 input.copyTo(output)
             }

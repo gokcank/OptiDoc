@@ -79,13 +79,26 @@
     <string name="share_file">Dosyayı Paylaş</string>
     <string name="output_not_ready">Çıktı dosyası henüz hazır değil.</string>
     <string name="about">Hakkında</string>
-    <string name="about_version">OptiDoc v%1$s (Kapalı Beta)</string>
+    <string name="about_version">OptiDoc v%1$s</string>
     <string name="about_developer">Geliştirici: gokcank</string>
     <string name="bug_report">HATA BİLDİR</string>
     <string name="save_to_device">Cihaza Kaydet</string>
     <string name="share">Paylaş</string>
     <string name="error_save_jpeg">JPEG kaydetme başarısız</string>
     <string name="error_save_file">Dosya kaydetme başarısız</string>
+
+    <!-- Watermark & Signature -->
+    <string name="export_format_jpeg">JPEG Görseli</string>
+    <string name="watermark_and_signature">Filigran &amp; İmza</string>
+    <string name="enable_watermark">Filigran Ekle</string>
+    <string name="watermark_text_hint">Filigran metni (Örn: GİZLİ, KOPYADIR)</string>
+    <string name="enable_signature">Dijital İmza Ekle</string>
+    <string name="draw_signature">İmza Çiz</string>
+    <string name="signature_added">İmza Eklendi ✓</string>
+    <string name="add_signature">İmza Ekle</string>
+    <string name="clear">Temizle</string>
+    <string name="draw_signature_hint">İmzanızı aşağıdaki alana parmağınızla çizin</string>
+    <string name="signature_canvas_placeholder">Buraya imzanızı atın</string>
 
     <!-- Folders & Dynamic Dialogs -->
     <string name="folder_all">Tümü</string>

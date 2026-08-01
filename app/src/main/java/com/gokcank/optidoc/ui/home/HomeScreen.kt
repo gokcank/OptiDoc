@@ -168,7 +168,7 @@ fun HomeScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ExtendedFloatingActionButton(
-                    onClick = onScanNewDocument,
+                    onClick = { onScanNewDocument() },
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     text = { Text(stringResource(R.string.new_scan)) },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -177,9 +177,6 @@ fun HomeScreen(
                     elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
                 )
             }
-        },
-        bottomBar = {
-            com.gokcank.optidoc.ui.components.AdBanner(modifier = Modifier.fillMaxWidth())
         }
     ) { paddingValues ->
         Box(

@@ -59,15 +59,11 @@ fun OptiDocNavHost(
         }
 
         composable<Screen.Review> { backStackEntry ->
-            val route: Screen.Review = backStackEntry.toRoute()
-            val activity = androidx.compose.ui.platform.LocalContext.current as android.app.Activity
             ReviewScreen(
-                pageImageUris = route.pageImageUris,
-                nativePdfUri = route.nativePdfUri,
+                pageImageUris = backStackEntry.toRoute<Screen.Review>().pageImageUris,
+                nativePdfUri = backStackEntry.toRoute<Screen.Review>().nativePdfUri,
                 onSavedDirectly = {
-                    com.gokcank.optidoc.ui.components.InterstitialAdManager.showAd(activity) {
-                        navController.popBackStack<Screen.Home>(inclusive = false)
-                    }
+                    navController.popBackStack<Screen.Home>(inclusive = false)
                 },
                 onOcrCompleted = { documentId ->
                     navController.navigate(Screen.ReviewEdit(documentId = documentId)) {
@@ -78,14 +74,10 @@ fun OptiDocNavHost(
         }
 
         composable<Screen.ReviewEdit> { backStackEntry ->
-            val route: Screen.ReviewEdit = backStackEntry.toRoute()
-            val activity = androidx.compose.ui.platform.LocalContext.current as android.app.Activity
             ReviewEditScreen(
-                documentId = route.documentId,
+                documentId = backStackEntry.toRoute<Screen.ReviewEdit>().documentId,
                 onExportCompleted = {
-                    com.gokcank.optidoc.ui.components.InterstitialAdManager.showAd(activity) {
-                        navController.popBackStack<Screen.Home>(inclusive = false)
-                    }
+                    navController.popBackStack<Screen.Home>(inclusive = false)
                 }
             )
         }

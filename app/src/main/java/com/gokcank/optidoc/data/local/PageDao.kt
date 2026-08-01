@@ -17,20 +17,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PageDao {
 
-    // ── Okuma ────────────────────────────────────────────────────────────────
-
-    /** Belgeye ait sayfaları sayfa numarasına göre artan sırada döndürür. */
-    @Query("SELECT * FROM pages WHERE documentId = :documentId ORDER BY pageNumber ASC")
-    fun getPagesByDocument(documentId: Long): Flow<List<PageEntity>>
-
-    // ── Yazma ────────────────────────────────────────────────────────────────
-
-    /**
-     * Tek bir sayfa ekler.
-     * @return Eklenen satırın id'si.
-     */
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertPage(page: PageEntity): Long
+    // ── Yazma ───────────────────────────────────────────────────────────────────────────
 
     /**
      * Birden fazla sayfayı tek seferde ekler (tarama sonucu için).
@@ -39,17 +26,9 @@ interface PageDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertPages(pages: List<PageEntity>): List<Long>
 
-    /** Sayfanın tüm alanlarını günceller. */
-    @Update
-    suspend fun updatePage(page: PageEntity)
-
     /** Belirtilen sayfanın yalnızca OCR metnini günceller (kullanıcı düzenlemesi). */
     @Query("UPDATE pages SET ocrText = :text WHERE id = :pageId")
     suspend fun updateOcrText(pageId: Long, text: String)
-
-    /** Bir belgeye ait tüm sayfaları açıkça siler. */
-    @Query("DELETE FROM pages WHERE documentId = :documentId")
-    suspend fun deletePagesByDocumentId(documentId: Long)
 
     /** Sayfa numarasını (sırasını) günceller. */
     @Query("UPDATE pages SET pageNumber = :newPageNumber WHERE id = :pageId")

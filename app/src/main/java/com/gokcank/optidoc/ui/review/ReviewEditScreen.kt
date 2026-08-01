@@ -1,6 +1,5 @@
 package com.gokcank.optidoc.ui.review
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,8 +25,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import android.graphics.Bitmap
+import androidx.compose.material.icons.filled.Create
+import com.gokcank.optidoc.domain.model.SignatureOptions
+import com.gokcank.optidoc.domain.model.WatermarkOptions
+import com.gokcank.optidoc.ui.components.DocumentPageImage
+import com.gokcank.optidoc.ui.components.SignatureCanvasDialog
 import com.gokcank.optidoc.R
 import com.gokcank.optidoc.domain.model.DocumentPage
 import com.gokcank.optidoc.domain.model.ExportFormat
@@ -98,8 +102,8 @@ fun ReviewEditScreen(
     if (showExportDialog) {
         ExportFormatBottomSheet(
             onDismiss = { showExportDialog = false },
-            onFormatSelected = { format ->
-                viewModel.exportDocument(format)
+            onFormatSelected = { format, wmOpts, sigOpts ->
+                viewModel.exportDocument(format, wmOpts, sigOpts)
             }
         )
     }
@@ -115,14 +119,29 @@ private data class FormatOptionItem(
 @Composable
 private fun ExportFormatBottomSheet(
     onDismiss: () -> Unit,
-    onFormatSelected: (ExportFormat) -> Unit
+    onFormatSelected: (ExportFormat, WatermarkOptions?, SignatureOptions?) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
+    var isWatermarkEnabled by remember { mutableStateOf(false) }
+    var watermarkText by remember { mutableStateOf("GİZLİ") }
+    var signatureBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showSignatureDialog by remember { mutableStateOf(false) }
+
     val formats = listOf(
         FormatOptionItem(ExportFormat.PDF, stringResource(R.string.export_format_pdf), Icons.Default.PictureAsPdf),
         FormatOptionItem(ExportFormat.TXT, stringResource(R.string.export_format_txt), Icons.Default.Description),
-        FormatOptionItem(ExportFormat.JPEG, "JPEG Image", Icons.Default.Image)
+        FormatOptionItem(ExportFormat.JPEG, stringResource(R.string.export_format_jpeg), Icons.Default.Image)
     )
+
+    if (showSignatureDialog) {
+        SignatureCanvasDialog(
+            onDismiss = { showSignatureDialog = false },
+            onSignatureSaved = { bmp ->
+                signatureBitmap = bmp
+                showSignatureDialog = false
+            }
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -136,20 +155,95 @@ private fun ExportFormatBottomSheet(
             Text(
                 text = stringResource(R.string.review_export_title),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             )
-            Text(
-                text = stringResource(R.string.select_format_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-            )
+
+            // Filigran & İmza Kontrol Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.watermark_and_signature),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.enable_watermark),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = isWatermarkEnabled,
+                            onCheckedChange = { isWatermarkEnabled = it }
+                        )
+                    }
+
+                    if (isWatermarkEnabled) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = watermarkText,
+                            onValueChange = { watermarkText = it },
+                            label = { Text(stringResource(R.string.watermark_text_hint)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.enable_signature),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        OutlinedButton(
+                            onClick = { showSignatureDialog = true }
+                        ) {
+                            if (signatureBitmap != null) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.signature_added), color = MaterialTheme.colorScheme.primary)
+                            } else {
+                                Icon(Icons.Default.Create, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.draw_signature))
+                            }
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
 
             formats.forEach { item ->
                 Surface(
                     onClick = {
-                        onFormatSelected(item.format)
+                        val wmOpts = if (isWatermarkEnabled && watermarkText.isNotBlank()) {
+                            WatermarkOptions(text = watermarkText)
+                        } else null
+
+                        val sigOpts = if (signatureBitmap != null) {
+                            SignatureOptions(bitmap = signatureBitmap)
+                        } else null
+
+                        onFormatSelected(item.format, wmOpts, sigOpts)
                         onDismiss()
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -208,13 +302,9 @@ private fun EditPager(
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(Uri.parse(page.imageUri))
-                            .crossfade(true)
-                            .build(),
+                    DocumentPageImage(
+                        imageUri = page.imageUri,
                         contentDescription = stringResource(R.string.page_number, pageIndex + 1),
-                        contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

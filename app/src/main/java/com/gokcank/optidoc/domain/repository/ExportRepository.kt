@@ -23,7 +23,9 @@ interface ExportRepository {
         documentId: Long,
         text: String,
         format: ExportFormat,
-        title: String = "document_$documentId"
+        title: String = "document_$documentId",
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
     ): Result<String>
 
     /**
@@ -32,12 +34,15 @@ interface ExportRepository {
      * @param documentId    İlişkili belgenin id'si.
      * @param pageImageUris Kalıcı depolamadaki sayfa görseli URI'leri (file://).
      * @param title         Dosya adı tabanı.
+     * @param signatureOptions İsteğe bağlı dijital imza konfigürasyonu.
      * @return Başarıda oluşturulan JPEG URI'lerinin listesi.
      */
     suspend fun exportImages(
         documentId: Long,
         pageImageUris: List<String>,
-        title: String = "document_$documentId"
+        title: String = "document_$documentId",
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
     ): Result<List<String>>
 
     /**

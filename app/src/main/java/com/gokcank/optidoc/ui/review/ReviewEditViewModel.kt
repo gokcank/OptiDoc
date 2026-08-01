@@ -61,7 +61,7 @@ class ReviewEditViewModel @Inject constructor(
                         _uiState.value = ReviewEditUiState.Success(currentPages)
                     }
                 } else {
-                    _uiState.value = ReviewEditUiState.Error("Document not found")
+                    _uiState.value = ReviewEditUiState.Error("Belge bulunamadı")
                 }
             }
         }
@@ -86,19 +86,23 @@ class ReviewEditViewModel @Inject constructor(
         }
     }
 
-    fun exportDocument(format: ExportFormat) {
+    fun exportDocument(
+        format: ExportFormat,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ) {
         if (currentPages.isEmpty()) return
 
         viewModelScope.launch {
             _uiState.value = ReviewEditUiState.Exporting
 
             if (format == ExportFormat.JPEG) {
-                exportPageImagesUseCase(documentId)
+                exportPageImagesUseCase(documentId, watermarkOptions, signatureOptions)
                     .onSuccess {
                         _exportCompleted.emit(Unit)
                     }
                     .onFailure { err ->
-                        _uiState.value = ReviewEditUiState.Error(err.message ?: "Failed to export JPEGs")
+                        _uiState.value = ReviewEditUiState.Error(err.message ?: "JPEG dışa aktarma başarısız")
                     }
                 return@launch
             }
@@ -113,11 +117,12 @@ class ReviewEditViewModel @Inject constructor(
                 text = combinedText,
                 format = format,
                 pageCount = currentPages.size,
-                title = documentTitle
+                watermarkOptions = watermarkOptions,
+                signatureOptions = signatureOptions
             ).onSuccess {
                 _exportCompleted.emit(Unit)
             }.onFailure { err ->
-                _uiState.value = ReviewEditUiState.Error(err.message ?: "Failed to export")
+                _uiState.value = ReviewEditUiState.Error(err.message ?: "Dışa aktarma başarısız")
             }
         }
     }

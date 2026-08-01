@@ -59,7 +59,7 @@ class ReviewViewModel @Inject constructor(
             ).onSuccess { id ->
                 _uiState.value = ReviewUiState.SuccessDirect(id)
             }.onFailure { err ->
-                _uiState.value = ReviewUiState.Error(err.message ?: "Failed to save directly")
+                _uiState.value = ReviewUiState.Error(err.message ?: "Belge kaydedilemedi")
             }
         }
     }
@@ -74,7 +74,7 @@ class ReviewViewModel @Inject constructor(
             ).onSuccess { (id, _) ->
                 _uiState.value = ReviewUiState.SuccessOcr(id)
             }.onFailure { err ->
-                _uiState.value = ReviewUiState.Error(err.message ?: "Failed to apply OCR")
+                _uiState.value = ReviewUiState.Error(err.message ?: "Metin tanıma başarısız")
             }
         }
     }

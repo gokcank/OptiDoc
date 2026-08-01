@@ -23,19 +23,13 @@ android {
         applicationId = "com.gokcank.optidoc"
         minSdk        = 26
         targetSdk     = 36
-        versionCode   = 5
-        versionName   = "1.2.2"
+        versionCode   = 6
+        versionName   = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("ADMOB_APP_ID")
             ?: "ca-app-pub-3940256099942544~3347511713"
-        val bannerId = localProperties.getProperty("ADMOB_BANNER_ID")
-            ?: "ca-app-pub-3940256099942544/6300978111"
-        val interstitialId = localProperties.getProperty("ADMOB_INTERSTITIAL_ID")
-            ?: "ca-app-pub-3940256099942544/1033173712"
-        buildConfigField("String", "ADMOB_BANNER_ID", "\"$bannerId\"")
-        buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$interstitialId\"")
     }
 
     signingConfigs {

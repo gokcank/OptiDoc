@@ -79,13 +79,26 @@
     <string name="share_file">Share File</string>
     <string name="output_not_ready">Output file is not ready yet.</string>
     <string name="about">About</string>
-    <string name="about_version">OptiDoc v%1$s (Closed Beta)</string>
+    <string name="about_version">OptiDoc v%1$s</string>
     <string name="about_developer">Developer: gokcank</string>
     <string name="bug_report">BUG REPORT</string>
     <string name="save_to_device">Save to Device</string>
     <string name="share">Share</string>
     <string name="error_save_jpeg">Failed to save JPEG</string>
     <string name="error_save_file">Failed to save file</string>
+
+    <!-- Watermark & Signature -->
+    <string name="export_format_jpeg">JPEG Image</string>
+    <string name="watermark_and_signature">Watermark &amp; Signature</string>
+    <string name="enable_watermark">Add Watermark</string>
+    <string name="watermark_text_hint">Watermark text (e.g. CONFIDENTIAL)</string>
+    <string name="enable_signature">Add Digital Signature</string>
+    <string name="draw_signature">Draw Signature</string>
+    <string name="signature_added">Signature Added ✓</string>
+    <string name="add_signature">Add Signature</string>
+    <string name="clear">Clear</string>
+    <string name="draw_signature_hint">Draw your signature inside the area below</string>
+    <string name="signature_canvas_placeholder">Sign here with your finger</string>
 
     <!-- Folders & Dynamic Dialogs -->
     <string name="folder_all">All</string>

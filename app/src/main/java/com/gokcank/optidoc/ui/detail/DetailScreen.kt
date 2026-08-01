@@ -25,9 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import java.io.File
-import coil.request.ImageRequest
+import android.graphics.Bitmap
+import com.gokcank.optidoc.ui.components.DocumentPageImage
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Create
+import com.gokcank.optidoc.domain.model.SignatureOptions
+import com.gokcank.optidoc.domain.model.WatermarkOptions
+import com.gokcank.optidoc.ui.components.SignatureCanvasDialog
 import com.gokcank.optidoc.R
 import com.gokcank.optidoc.domain.model.DocumentOutput
 import com.gokcank.optidoc.domain.model.DocumentPage
@@ -108,6 +112,20 @@ fun DetailScreen(
                 }
             )
         },
+        floatingActionButton = {
+            if (uiState is DetailUiState.Success) {
+                val state = uiState as DetailUiState.Success
+                if (state.document.output is DocumentOutput.OcrExport) {
+                    FloatingActionButton(
+                        onClick = { onEdit(state.document.id) },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ) {
+                        Icon(Icons.Default.Create, contentDescription = stringResource(R.string.continue_edit))
+                    }
+                }
+            }
+        },
         bottomBar = {
             when (val state = uiState) {
                 is DetailUiState.Success -> {
@@ -120,23 +138,23 @@ fun DetailScreen(
                         onShareClick = {
                             pendingAction = IntentAction.SHARE
                             showFormatDialog = true
-                        },
-                        onEditClick = { onEdit(state.document.id) }
+                        }
                     )
                     if (showFormatDialog && pendingAction != null) {
                         FormatSelectionBottomSheet(
                             document = state.document,
                             action = pendingAction!!,
                             onDismiss = { showFormatDialog = false },
-                            onFormatSelected = { format ->
+                            onFormatSelected = { format, wmOpts, sigOpts ->
                                 val action = pendingAction!!
-                                if (format == ExportFormat.JPEG) {
-                                    viewModel.performActionAsJpeg(action)
-                                } else {
-                                    val uriStr = state.document.getOutputUri()
-                                    if (uriStr != null) {
-                                        val mimeType = if (format == ExportFormat.TXT) "text/plain" else "application/pdf"
-                                        viewModel.performExistingAction(uriStr, mimeType, action, state.document.title)
+                                when (format) {
+                                    ExportFormat.JPEG -> viewModel.performActionAsJpeg(action, wmOpts, sigOpts)
+                                    ExportFormat.PDF -> viewModel.exportDocumentAsPdf(action, wmOpts, sigOpts)
+                                    ExportFormat.TXT -> {
+                                        val uriStr = state.document.getOutputUri()
+                                        if (uriStr != null) {
+                                            viewModel.performExistingAction(uriStr, "text/plain", action, state.document.title)
+                                        }
                                     }
                                 }
                             }
@@ -187,13 +205,9 @@ fun DetailScreen(
                                         .padding(8.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(Uri.parse(page.imageUri))
-                                            .crossfade(true)
-                                            .build(),
+                                    DocumentPageImage(
+                                        imageUri = page.imageUri,
                                         contentDescription = stringResource(R.string.page_number, pageIndex + 1),
-                                        contentScale = ContentScale.Fit,
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
@@ -261,8 +275,7 @@ fun DetailScreen(
 private fun DetailBottomBar(
     document: ScannedDocument,
     onSaveClick: () -> Unit,
-    onShareClick: () -> Unit,
-    onEditClick: () -> Unit
+    onShareClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -272,21 +285,16 @@ private fun DetailBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(onClick = onSaveClick) {
+            OutlinedButton(onClick = onSaveClick, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.save_file))
             }
-            Button(onClick = onShareClick) {
+            Button(onClick = onShareClick, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(stringResource(R.string.share_file))
-            }
-            if (document.output is DocumentOutput.OcrExport) {
-                TextButton(onClick = onEditClick) {
-                    Text(stringResource(R.string.continue_edit))
-                }
             }
         }
     }
@@ -334,22 +342,39 @@ private fun FormatSelectionBottomSheet(
     document: ScannedDocument,
     action: IntentAction,
     onDismiss: () -> Unit,
-    onFormatSelected: (ExportFormat) -> Unit
+    onFormatSelected: (ExportFormat, WatermarkOptions?, SignatureOptions?) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
-    val availableFormats = mutableListOf<ExportFormat>()
-    availableFormats.add(ExportFormat.JPEG)
-    
-    when (val out = document.output) {
-        is DocumentOutput.DirectPdf -> availableFormats.add(0, ExportFormat.PDF)
-        is DocumentOutput.OcrExport -> {
-            if (out.format == ExportFormat.TXT) {
-                availableFormats.add(0, ExportFormat.TXT)
-            } else if (out.format == ExportFormat.PDF) {
-                availableFormats.add(0, ExportFormat.PDF)
+    val availableFormats = remember { mutableStateListOf<ExportFormat>() }
+
+    var isWatermarkEnabled by remember { mutableStateOf(false) }
+    var watermarkText by remember { mutableStateOf("GİZLİ") }
+    var signatureBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showSignatureDialog by remember { mutableStateOf(false) }
+
+    if (availableFormats.isEmpty()) {
+        availableFormats.add(ExportFormat.JPEG)
+        when (val out = document.output) {
+            is DocumentOutput.DirectPdf -> availableFormats.add(0, ExportFormat.PDF)
+            is DocumentOutput.OcrExport -> {
+                if (out.format == ExportFormat.TXT) {
+                    availableFormats.add(0, ExportFormat.TXT)
+                } else if (out.format == ExportFormat.PDF) {
+                    availableFormats.add(0, ExportFormat.PDF)
+                }
             }
+            else -> {}
         }
-        else -> {}
+    }
+
+    if (showSignatureDialog) {
+        SignatureCanvasDialog(
+            onDismiss = { showSignatureDialog = false },
+            onSignatureSaved = { bmp ->
+                signatureBitmap = bmp
+                showSignatureDialog = false
+            }
+        )
     }
 
     val titleText = if (action == IntentAction.SAVE) {
@@ -370,9 +395,83 @@ private fun FormatSelectionBottomSheet(
             Text(
                 text = titleText,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            // Filigran & İmza Kontrol Kartı
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.watermark_and_signature),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.enable_watermark),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = isWatermarkEnabled,
+                            onCheckedChange = { isWatermarkEnabled = it }
+                        )
+                    }
+
+                    if (isWatermarkEnabled) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = watermarkText,
+                            onValueChange = { watermarkText = it },
+                            label = { Text(stringResource(R.string.watermark_text_hint)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.enable_signature),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        OutlinedButton(
+                            onClick = { showSignatureDialog = true }
+                        ) {
+                            if (signatureBitmap != null) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.signature_added), color = MaterialTheme.colorScheme.primary)
+                            } else {
+                                Icon(Icons.Default.Create, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(R.string.draw_signature))
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             availableFormats.forEach { format ->
                 val icon: ImageVector = when (format) {
                     ExportFormat.PDF -> Icons.Default.PictureAsPdf
@@ -381,12 +480,20 @@ private fun FormatSelectionBottomSheet(
                 }
                 val formatLabel = when (format) {
                     ExportFormat.PDF -> stringResource(R.string.export_format_pdf)
-                    ExportFormat.JPEG -> "JPEG Image"
+                    ExportFormat.JPEG -> stringResource(R.string.export_format_jpeg)
                     ExportFormat.TXT -> stringResource(R.string.export_format_txt)
                 }
                 Surface(
                     onClick = {
-                        onFormatSelected(format)
+                        val wmOpts = if (isWatermarkEnabled && watermarkText.isNotBlank()) {
+                            WatermarkOptions(text = watermarkText)
+                        } else null
+
+                        val sigOpts = if (signatureBitmap != null) {
+                            SignatureOptions(bitmap = signatureBitmap)
+                        } else null
+
+                        onFormatSelected(format, wmOpts, sigOpts)
                         onDismiss()
                     },
                     modifier = Modifier.fillMaxWidth(),

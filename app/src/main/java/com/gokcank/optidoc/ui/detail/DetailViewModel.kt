@@ -35,7 +35,8 @@ class DetailViewModel @Inject constructor(
     getDocumentDetailUseCase: GetDocumentDetailUseCase,
     private val exportPageImagesUseCase: ExportPageImagesUseCase,
     private val exportRepository: ExportRepository,
-    private val documentRepository: com.gokcank.optidoc.domain.repository.DocumentRepository
+    private val documentRepository: com.gokcank.optidoc.domain.repository.DocumentRepository,
+    private val exportDocumentUseCase: com.gokcank.optidoc.domain.usecase.ExportDocumentUseCase
 ) : ViewModel() {
 
     private val route = savedStateHandle.toRoute<Screen.Detail>()
@@ -58,15 +59,53 @@ class DetailViewModel @Inject constructor(
     private val _isExporting = MutableStateFlow(false)
     val isExporting: StateFlow<Boolean> = _isExporting.asStateFlow()
 
-    fun performActionAsJpeg(action: IntentAction) {
+
+    fun performActionAsJpeg(
+        action: IntentAction,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ) {
         if (action == IntentAction.SAVE) {
-            saveAsJpeg()
+            saveAsJpeg(watermarkOptions, signatureOptions)
         } else {
-            // SHARE - send internal URIs to avoid cluttering gallery
+            // SHARE
             viewModelScope.launch {
                 documentRepository.getDocumentWithPages(documentId).firstOrNull()?.let { (doc, pages) ->
                     val uris = pages.sortedBy { it.pageNumber }.map { it.imageUri }
                     _actionEvent.emit(ActionEvent.Success(uris, "image/jpeg", action, doc.title))
+                }
+            }
+        }
+    }
+
+    fun exportDocumentAsPdf(
+        action: IntentAction,
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ) {
+        viewModelScope.launch {
+            _isExporting.value = true
+            documentRepository.getDocumentWithPages(documentId).firstOrNull()?.let { (doc, pages) ->
+                val sortedPages = pages.sortedBy { it.pageNumber }
+                val combinedText = sortedPages.joinToString(ExportRepository.PAGE_SEPARATOR) { it.ocrText ?: "" }
+                exportDocumentUseCase(
+                    documentId = documentId,
+                    text = combinedText,
+                    format = com.gokcank.optidoc.domain.model.ExportFormat.PDF,
+                    pageCount = pages.size,
+                    title = doc.title,
+                    watermarkOptions = watermarkOptions,
+                    signatureOptions = signatureOptions
+                ).onSuccess { generatedUri ->
+                    _isExporting.value = false
+                    if (action == IntentAction.SAVE) {
+                        _actionEvent.emit(ActionEvent.SaveSuccess("PDF dosyası başarıyla kaydedildi."))
+                    } else {
+                        _actionEvent.emit(ActionEvent.Success(listOf(generatedUri), "application/pdf", action, doc.title))
+                    }
+                }.onFailure { err ->
+                    _isExporting.value = false
+                    _actionEvent.emit(ActionEvent.Error(err.message ?: "PDF oluşturulamadı"))
                 }
             }
         }
@@ -83,10 +122,13 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    private fun saveAsJpeg() {
+    private fun saveAsJpeg(
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
+    ) {
         viewModelScope.launch {
             _isExporting.value = true
-            exportPageImagesUseCase(documentId)
+            exportPageImagesUseCase(documentId, watermarkOptions, signatureOptions)
                 .onSuccess { uris ->
                     _isExporting.value = false
                     _actionEvent.emit(ActionEvent.SaveSuccess("${uris.size} JPEG kaydedildi."))

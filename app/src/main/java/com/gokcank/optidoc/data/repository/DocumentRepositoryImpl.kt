@@ -72,12 +72,6 @@ class DocumentRepositoryImpl @Inject constructor(
     override suspend fun deleteDocument(id: Long) =
         documentDao.deleteDocumentById(id)
 
-    override fun getDocumentsByFolder(folderId: Long): Flow<List<ScannedDocument>> =
-        documentDao.getDocumentsByFolder(folderId).map { list -> list.map { it.toDomain() } }
-
-    override fun getDocumentsWithoutFolder(): Flow<List<ScannedDocument>> =
-        documentDao.getDocumentsWithoutFolder().map { list -> list.map { it.toDomain() } }
-
     override suspend fun moveToFolder(documentId: Long, folderId: Long?) =
         documentDao.moveToFolder(documentId, folderId)
 

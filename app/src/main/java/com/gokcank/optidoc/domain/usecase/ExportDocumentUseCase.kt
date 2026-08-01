@@ -29,10 +29,19 @@ class ExportDocumentUseCase @Inject constructor(
         text: String,
         format: ExportFormat,
         pageCount: Int,
-        title: String = "document_$documentId"
+        title: String = "document_$documentId",
+        watermarkOptions: com.gokcank.optidoc.domain.model.WatermarkOptions? = null,
+        signatureOptions: com.gokcank.optidoc.domain.model.SignatureOptions? = null
     ): Result<String> = runCatching {
         // 1. Dosyayı üret
-        val uri = exportRepository.export(documentId, text, format, title).getOrThrow()
+        val uri = exportRepository.export(
+            documentId = documentId,
+            text = text,
+            format = format,
+            title = title,
+            watermarkOptions = watermarkOptions,
+            signatureOptions = signatureOptions
+        ).getOrThrow()
 
         // 2. DB'yi güncelle
         documentRepository.updateOutput(
