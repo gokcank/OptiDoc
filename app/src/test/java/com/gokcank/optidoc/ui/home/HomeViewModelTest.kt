@@ -135,8 +135,6 @@ private class FakeHomeRepository(
     override suspend fun updateOutput(id: Long, output: DocumentOutput, pageCount: Int) {}
     override suspend fun updatePageText(pageId: Long, text: String) {}
     override suspend fun deleteDocument(id: Long) {}
-    override fun getDocumentsByFolder(folderId: Long): Flow<List<ScannedDocument>> = flowOf(emptyList())
-    override fun getDocumentsWithoutFolder(): Flow<List<ScannedDocument>> = flowOf(emptyList())
     override suspend fun moveToFolder(documentId: Long, folderId: Long?) {}
     override suspend fun createFolder(name: String): Long = 1L
     override suspend fun deleteFolder(id: Long) {}

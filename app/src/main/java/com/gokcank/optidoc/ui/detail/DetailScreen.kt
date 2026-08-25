@@ -68,9 +68,9 @@ fun DetailScreen(
                             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                         }
                         try {
-                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_file)))
+                            context.startActivity(Intent.createChooser(intent, context.resources.getString(R.string.share_file)))
                         } catch (e: Exception) {
-                            android.widget.Toast.makeText(context, context.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.resources.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
                         }
                     } else {
                         val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
@@ -83,9 +83,9 @@ fun DetailScreen(
                             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                         }
                         try {
-                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_file)))
+                            context.startActivity(Intent.createChooser(intent, context.resources.getString(R.string.share_file)))
                         } catch (e: Exception) {
-                            android.widget.Toast.makeText(context, context.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(context, context.resources.getString(R.string.error_prefix, e.message ?: ""), android.widget.Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -93,7 +93,7 @@ fun DetailScreen(
                     snackbarHostState.showSnackbar(event.message)
                 }
                 is ActionEvent.Error -> {
-                    snackbarHostState.showSnackbar(context.getString(R.string.error_prefix, event.message))
+                    snackbarHostState.showSnackbar(context.resources.getString(R.string.error_prefix, event.message))
                 }
             }
         }

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Reklamlar ve arka plan ağ işlemleri için -->
     <uses-permission android:name="android.permission.INTERNET" />
     
     <!-- ML Kit Document Scanner kamera erişimi gerektirir -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Üretilen dosyaları harici depolamaya yazmak için (Android 9 ve altı) -->
     <uses-permission
@@ -39,6 +41,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Google ML Kit Scanner büyük ekran / tablet yön kilidi override kuralı -->
+        <activity
+            android:name="com.google.mlkit.vision.documentscanner.internal.GmsDocumentScanningDelegateActivity"
+            android:screenOrientation="unspecified"
+            tools:replace="android:screenOrientation" />
 
         <!--
             ExportRepositoryImpl'in app-özel dizine yazdığı .txt/.pdf dosyalarını

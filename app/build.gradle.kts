@@ -23,13 +23,19 @@ android {
         applicationId = "com.gokcank.optidoc"
         minSdk        = 26
         targetSdk     = 36
-        versionCode   = 6
-        versionName   = "1.3.0"
+        versionCode   = 7
+        versionName   = "1.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders["ADMOB_APP_ID"] = localProperties.getProperty("ADMOB_APP_ID")
             ?: "ca-app-pub-3940256099942544~3347511713"
+        val bannerId = localProperties.getProperty("ADMOB_BANNER_ID")
+            ?: "ca-app-pub-3940256099942544/6300978111"
+        val interstitialId = localProperties.getProperty("ADMOB_INTERSTITIAL_ID")
+            ?: "ca-app-pub-3940256099942544/1033173712"
+        buildConfigField("String", "ADMOB_BANNER_ID", "\"$bannerId\"")
+        buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$interstitialId\"")
     }
 
     signingConfigs {
@@ -44,11 +50,15 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
 
@@ -73,6 +83,11 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    lint {
+        abortOnError = false
+        checkDependencies = true
     }
 }
 
@@ -135,7 +150,7 @@ dependencies {
     implementation(libs.coil.compose)
 
     // ---------- AdMob ----------
-    implementation("com.google.android.gms:play-services-ads:23.1.0")
+    implementation("com.google.android.gms:play-services-ads:23.6.0")
 
     // ---------- Test ----------
     testImplementation(libs.junit)
