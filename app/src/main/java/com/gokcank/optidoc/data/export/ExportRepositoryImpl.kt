@@ -2,6 +2,8 @@ package com.gokcank.optidoc.data.export
 
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -100,34 +102,25 @@ class ExportRepositoryImpl @Inject constructor(
                 val fileName = if (pageImageUris.size > 1) "${safeBase}_s${index + 1}.jpg" else "$safeBase.jpg"
                 writePublic(fileName = fileName, mimeType = "image/jpeg") { out ->
                     val uri = Uri.parse(uriStr)
-                    val input = if (uri.scheme == "file") {
-                        File(uri.path!!).inputStream()
-                    } else {
-                        context.contentResolver.openInputStream(uri)
-                    }
-                    if (input != null) {
-                        if (watermarkOptions != null || signatureOptions?.bitmap != null) {
-                            val originalBmp = android.graphics.BitmapFactory.decodeStream(input)
-                            input.close()
-                            if (originalBmp != null) {
-                                val mutableBmp = originalBmp.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
-                                val canvas = android.graphics.Canvas(mutableBmp)
-                                drawWatermarkAndSignature(
-                                    canvas = canvas,
-                                    width = mutableBmp.width.toFloat(),
-                                    height = mutableBmp.height.toFloat(),
-                                    watermarkOptions = watermarkOptions,
-                                    signatureOptions = signatureOptions
-                                )
-                                mutableBmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 92, out)
-                            } else {
-                                throw IOException("Görsel çözümlenemedi: $uriStr")
-                            }
+                    if (watermarkOptions != null || signatureOptions?.bitmap != null) {
+                        val mutableBmp = decodeMutableBitmap(uri)
+                        if (mutableBmp != null) {
+                            val canvas = android.graphics.Canvas(mutableBmp)
+                            drawWatermarkAndSignature(
+                                canvas = canvas,
+                                width = mutableBmp.width.toFloat(),
+                                height = mutableBmp.height.toFloat(),
+                                watermarkOptions = watermarkOptions,
+                                signatureOptions = signatureOptions
+                            )
+                            mutableBmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 92, out)
+                            mutableBmp.recycle()
                         } else {
-                            input.use { it.copyTo(out) }
+                            throw IOException("Görsel çözümlenemedi: $uriStr")
                         }
                     } else {
-                        throw IOException("Görsel açılamadı: $uriStr")
+                        val input = openInputStream(uri) ?: throw IOException("Görsel açılamadı: $uriStr")
+                        input.use { it.copyTo(out) }
                     }
                 }
             }
@@ -369,6 +362,47 @@ class ExportRepositoryImpl @Inject constructor(
             val top = height - targetHeight - margin
             val destRect = android.graphics.RectF(left, top, left + targetWidth, top + targetHeight)
             canvas.drawBitmap(sigBmp, null, destRect, sigPaint)
+        }
+    }
+
+    private fun openInputStream(uri: Uri): InputStream? {
+        return if (uri.scheme == "file") {
+            val path = uri.path ?: return null
+            File(path).inputStream()
+        } else {
+            context.contentResolver.openInputStream(uri)
+        }
+    }
+
+    private fun decodeMutableBitmap(uri: Uri, maxDimension: Int = 3000): Bitmap? {
+        val boundsOptions = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, boundsOptions)
+        }
+
+        var sampleSize = 1
+        val rawWidth = boundsOptions.outWidth
+        val rawHeight = boundsOptions.outHeight
+        if (rawWidth > 0 && rawHeight > 0) {
+            var halfWidth = rawWidth
+            var halfHeight = rawHeight
+            while (halfWidth > maxDimension || halfHeight > maxDimension) {
+                sampleSize *= 2
+                halfWidth /= 2
+                halfHeight /= 2
+            }
+        }
+
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+            inMutable = true
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        }
+
+        return openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, decodeOptions)
         }
     }
 
