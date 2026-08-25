@@ -37,6 +37,7 @@ import com.gokcank.optidoc.domain.model.DocumentOutput
 import com.gokcank.optidoc.domain.model.ExportFormat
 import com.gokcank.optidoc.domain.model.Folder
 import com.gokcank.optidoc.domain.model.ScannedDocument
+import com.gokcank.optidoc.ui.components.AdBanner
 import java.text.DateFormat
 import java.util.Date
 
@@ -177,6 +178,9 @@ fun HomeScreen(
                     elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
                 )
             }
+        },
+        bottomBar = {
+            AdBanner()
         }
     ) { paddingValues ->
         Box(

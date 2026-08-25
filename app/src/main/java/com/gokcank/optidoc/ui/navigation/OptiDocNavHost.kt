@@ -59,11 +59,19 @@ fun OptiDocNavHost(
         }
 
         composable<Screen.Review> { backStackEntry ->
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val activity = context as? android.app.Activity
             ReviewScreen(
                 pageImageUris = backStackEntry.toRoute<Screen.Review>().pageImageUris,
                 nativePdfUri = backStackEntry.toRoute<Screen.Review>().nativePdfUri,
                 onSavedDirectly = {
-                    navController.popBackStack<Screen.Home>(inclusive = false)
+                    if (activity != null) {
+                        com.gokcank.optidoc.ui.components.InterstitialAdManager.showIfReady(activity) {
+                            navController.popBackStack<Screen.Home>(inclusive = false)
+                        }
+                    } else {
+                        navController.popBackStack<Screen.Home>(inclusive = false)
+                    }
                 },
                 onOcrCompleted = { documentId ->
                     navController.navigate(Screen.ReviewEdit(documentId = documentId)) {
@@ -74,10 +82,18 @@ fun OptiDocNavHost(
         }
 
         composable<Screen.ReviewEdit> { backStackEntry ->
+            val context = androidx.compose.ui.platform.LocalContext.current
+            val activity = context as? android.app.Activity
             ReviewEditScreen(
                 documentId = backStackEntry.toRoute<Screen.ReviewEdit>().documentId,
                 onExportCompleted = {
-                    navController.popBackStack<Screen.Home>(inclusive = false)
+                    if (activity != null) {
+                        com.gokcank.optidoc.ui.components.InterstitialAdManager.showIfReady(activity) {
+                            navController.popBackStack<Screen.Home>(inclusive = false)
+                        }
+                    } else {
+                        navController.popBackStack<Screen.Home>(inclusive = false)
+                    }
                 }
             )
         }
