@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="Store%20Assets/store_logo_512.png" width="42" height="42" valign="middle" alt="OptiDoc Logo" /> OptiDoc
+  <img src="logo.png" width="42" height="42" valign="middle" alt="OptiDoc Logo" /> OptiDoc
 </h1>
 
 <p align="center">
