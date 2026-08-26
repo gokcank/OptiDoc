@@ -26,7 +26,6 @@
     <string name="sort_date_asc">Tarih (En Eski)</string>
     <string name="sort_title_asc">Başlık (A-Z)</string>
     <string name="sort_title_desc">Başlık (Z-A)</string>
-    <string name="home_empty_state">Henüz taranmış belge yok. Başlamak için aşağıdaki butona dokun.</string>
     <string name="pages_count">%d Sayfa</string>
     <string name="output_format">Çıktı: %s</string>
     <string name="delete_document">Sil</string>
@@ -38,14 +37,12 @@
     <string name="welcome_desc">Dijital tarayıcın hazır. İşte yapabileceklerin:</string>
     <string name="feature_scan">Belgelerini yüksek kalitede tara</string>
     <string name="feature_ocr">Fotoğraflardaki metinleri çıkar (OCR)</string>
-    <string name="feature_export">Anında PDF veya TXT olarak paylaş</string>
+    <string name="feature_folder">Belgeleri klasörlerde düzenleme</string>
     <string name="item_selected">seçili</string>
     <string name="format_txt_ocr">TXT (OCR)</string>
     <string name="format_pdf_ocr">PDF (OCR)</string>
 
     <!-- Scan Screen -->
-    <string name="preparing_scanner">Tarayıcı hazırlanıyor...</string>
-    <string name="scan_prefix">Tarama</string>
     <string name="error_scan_failed">Tarama sonucu parse edilemedi</string>
 
     <!-- Review Screen -->
@@ -55,40 +52,32 @@
     <string name="apply_ocr_desc">Metni düzenlemek veya TXT/PDF olarak dışa aktarmak için görüntüden metin çıkarın.</string>
     <string name="save_direct">Doğrudan Kaydet</string>
     <string name="save_direct_desc">Görüntüleri standart PDF belgesi olarak kaydedin.</string>
-    <string name="error_save_direct">Doğrudan kaydetme başarısız</string>
-    <string name="error_apply_ocr">OCR uygulama başarısız</string>
     
     <!-- Edit -->
     <string name="review_edit_title">Çıkarılan Metni Düzenle</string>
     <string name="save_and_continue">Kaydet ve Devam Et</string>
     <string name="ocr_text_hint">Çıkarılan Metin</string>
+    <string name="ocr_text_label">Çıkarılan Metin</string>
     <string name="page_number">Sayfa %d</string>
+    <string name="page_indicator">%1$d / %2$d</string>
 
     <!-- Export -->
     <string name="review_export_title">Dışa Aktarma Formatı Seçin</string>
     <string name="export_format_txt">TXT Dosyası</string>
     <string name="export_format_pdf">Sadece Metin İçeren PDF</string>
-    <string name="export_document">Belgeyi Dışa Aktar</string>
+    <string name="export_format_jpeg">JPEG Görseli</string>
     <string name="error_document_not_found">Belge bulunamadı</string>
-    <string name="error_export_jpegs">JPEG\'leri dışa aktarma başarısız</string>
-    <string name="error_export">Dışa aktarma başarısız</string>
 
     <!-- Detail Screen -->
     <string name="detail_title">Belge Detayları</string>
-    <string name="open_file">Dosyayı Aç</string>
     <string name="share_file">Dosyayı Paylaş</string>
-    <string name="output_not_ready">Çıktı dosyası henüz hazır değil.</string>
     <string name="about">Hakkında</string>
     <string name="about_version">OptiDoc v%1$s</string>
     <string name="about_developer">Geliştirici: gokcank</string>
     <string name="bug_report">HATA BİLDİR</string>
-    <string name="save_to_device">Cihaza Kaydet</string>
-    <string name="share">Paylaş</string>
-    <string name="error_save_jpeg">JPEG kaydetme başarısız</string>
-    <string name="error_save_file">Dosya kaydetme başarısız</string>
+    <string name="save_file">Dosyayı Kaydet</string>
 
     <!-- Watermark & Signature -->
-    <string name="export_format_jpeg">JPEG Görseli</string>
     <string name="watermark_and_signature">Filigran &amp; İmza</string>
     <string name="enable_watermark">Filigran Ekle</string>
     <string name="watermark_text_hint">Filigran metni (Örn: GİZLİ, KOPYADIR)</string>
@@ -114,23 +103,14 @@
     <string name="delete_folder_confirm">\"%s\" klasörünü silmek istediğinize emin misiniz? (İçindeki belgeler silinmez, klasörden çıkarılır)</string>
     <string name="move_to_folder">Klasöre Taşı</string>
     <string name="folder_none">Klasörsüz (Ana Dizin)</string>
-    <string name="feature_folder">Belgeleri klasörlerde düzenleme</string>
     <string name="no_results_found">Sonuç bulunamadı</string>
-    <string name="select_format_desc">Metni ve sayfa görsellerini kaydetmek için format seçin.</string>
     <string name="move_left">Sola Taşı</string>
     <string name="move_right">Sağa Taşı</string>
     <string name="continue_edit">Devam Et / Düzenle</string>
     <string name="choose_save_format">Hangi formatta kaydetmek istiyorsunuz?</string>
     <string name="choose_share_format">Hangi formatta paylaşmak istiyorsunuz?</string>
-    <string name="save_jpeg_success">%d JPEG cihazınıza kaydedildi.</string>
-    <string name="save_file_success">Dosya başarıyla kaydedildi.</string>
     <string name="error_prefix">Hata: %s</string>
-    <string name="no_pages_available">Kayıtlı sayfa bulunamadı.</string>
     <string name="email_body_template">-- Lütfen sorununuzu buraya yazın --\n\n\n-- Cihaz Bilgileri --\nModel: %1$s\nAndroid Sürümü: %2$s (API %3$d)\nUygulama Sürümü: %4$s</string>
     <string name="unexpected_error">Beklenmeyen bir hata oluştu</string>
-    <string name="folder_name_empty">Klasör adı boş olamaz</string>
     <string name="back">Geri</string>
-    <string name="ocr_text_label">Çıkarılan Metin</string>
-    <string name="page_indicator">%1$d / %2$d</string>
-    <string name="save_file">Dosyayı Kaydet</string>
 </resources>

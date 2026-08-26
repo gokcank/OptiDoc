@@ -26,7 +26,6 @@
     <string name="sort_date_asc">Date (Oldest)</string>
     <string name="sort_title_asc">Title (A-Z)</string>
     <string name="sort_title_desc">Title (Z-A)</string>
-    <string name="home_empty_state">No documents scanned yet. Tap the button below to start.</string>
     <string name="pages_count">%d Pages</string>
     <string name="output_format">Output: %s</string>
     <string name="delete_document">Delete</string>
@@ -38,14 +37,12 @@
     <string name="welcome_desc">Your digital scanner is ready. Here is what you can do:</string>
     <string name="feature_scan">Scan documents in high quality</string>
     <string name="feature_ocr">Extract text from photos (OCR)</string>
-    <string name="feature_export">Export instantly as PDF or TXT</string>
+    <string name="feature_folder">Organize documents in custom folders</string>
     <string name="item_selected">Selected</string>
     <string name="format_txt_ocr">TXT (OCR)</string>
     <string name="format_pdf_ocr">PDF (OCR)</string>
 
     <!-- Scan Screen -->
-    <string name="preparing_scanner">Preparing scanner...</string>
-    <string name="scan_prefix">Scan</string>
     <string name="error_scan_failed">Failed to parse scan result</string>
 
     <!-- Review Screen -->
@@ -55,40 +52,32 @@
     <string name="apply_ocr_desc">Extract text from image to edit or export as TXT/PDF.</string>
     <string name="save_direct">Save Directly</string>
     <string name="save_direct_desc">Save the document as a standard PDF containing the images.</string>
-    <string name="error_save_direct">Failed to save directly</string>
-    <string name="error_apply_ocr">Failed to apply OCR</string>
     
     <!-- Edit -->
     <string name="review_edit_title">Edit Extracted Text</string>
     <string name="save_and_continue">Save &amp; Continue</string>
     <string name="ocr_text_hint">Extracted Text</string>
+    <string name="ocr_text_label">Extracted Text</string>
     <string name="page_number">Page %d</string>
+    <string name="page_indicator">%1$d / %2$d</string>
 
     <!-- Export -->
     <string name="review_export_title">Choose Export Format</string>
     <string name="export_format_txt">TXT File</string>
     <string name="export_format_pdf">Text-only PDF</string>
-    <string name="export_document">Export Document</string>
+    <string name="export_format_jpeg">JPEG Image</string>
     <string name="error_document_not_found">Document not found</string>
-    <string name="error_export_jpegs">Failed to export JPEGs</string>
-    <string name="error_export">Failed to export</string>
 
     <!-- Detail Screen -->
     <string name="detail_title">Document Details</string>
-    <string name="open_file">Open File</string>
     <string name="share_file">Share File</string>
-    <string name="output_not_ready">Output file is not ready yet.</string>
     <string name="about">About</string>
     <string name="about_version">OptiDoc v%1$s</string>
     <string name="about_developer">Developer: gokcank</string>
     <string name="bug_report">BUG REPORT</string>
-    <string name="save_to_device">Save to Device</string>
-    <string name="share">Share</string>
-    <string name="error_save_jpeg">Failed to save JPEG</string>
-    <string name="error_save_file">Failed to save file</string>
+    <string name="save_file">Save File</string>
 
     <!-- Watermark & Signature -->
-    <string name="export_format_jpeg">JPEG Image</string>
     <string name="watermark_and_signature">Watermark &amp; Signature</string>
     <string name="enable_watermark">Add Watermark</string>
     <string name="watermark_text_hint">Watermark text (e.g. CONFIDENTIAL)</string>
@@ -114,25 +103,14 @@
     <string name="delete_folder_confirm">Are you sure you want to delete folder \"%s\"? (Documents inside will not be deleted)</string>
     <string name="move_to_folder">Move to Folder</string>
     <string name="folder_none">No Folder (Root)</string>
-    <string name="feature_folder">Organize documents in custom folders</string>
     <string name="no_results_found">No results found</string>
-    <string name="select_format_desc">Select export format for text and page images.</string>
     <string name="move_left">Move Left</string>
     <string name="move_right">Move Right</string>
     <string name="continue_edit">Continue / Edit</string>
     <string name="choose_save_format">Choose format to save</string>
     <string name="choose_share_format">Choose format to share</string>
-    <string name="save_jpeg_success">%d JPEGs saved to device.</string>
-    <string name="save_file_success">File saved successfully.</string>
     <string name="error_prefix">Error: %s</string>
-    <string name="no_pages_available">No pages available.</string>
     <string name="email_body_template">-- Please describe your issue here --\n\n\n-- Device Info --\nModel: %1$s\nAndroid Version: %2$s (API %3$d)\nApp Version: %4$s</string>
     <string name="unexpected_error">An unexpected error occurred</string>
-    <string name="folder_name_empty">Folder name cannot be empty</string>
     <string name="back">Back</string>
-    <string name="ocr_text_label">Extracted Text</string>
-    <string name="page_indicator">%1$d / %2$d</string>
-    <string name="save_file">Save File</string>
 </resources>
-
-
