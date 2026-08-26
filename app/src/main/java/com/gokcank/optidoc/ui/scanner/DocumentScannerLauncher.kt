@@ -55,9 +55,7 @@ fun rememberDocumentScannerLauncher(
     onScanSuccess: (pageUris: List<Uri>, pdfUri: Uri?) -> Unit,
     onScanFailure: (Exception) -> Unit
 ): () -> Unit {
-    val activity = androidx.activity.compose.LocalActivity.current
-        ?: (androidx.compose.ui.platform.LocalContext.current as? android.app.Activity)
-        ?: return {}
+    val activity = androidx.activity.compose.LocalActivity.current ?: return {}
     val currentOnScanSuccess by rememberUpdatedState(onScanSuccess)
     val currentOnScanFailure by rememberUpdatedState(onScanFailure)
 

@@ -39,7 +39,7 @@
     <string name="feature_scan">Scan documents in high quality</string>
     <string name="feature_ocr">Extract text from photos (OCR)</string>
     <string name="feature_export">Export instantly as PDF or TXT</string>
-    <string name="selected">Selected</string>
+    <string name="item_selected">Selected</string>
     <string name="format_txt_ocr">TXT (OCR)</string>
     <string name="format_pdf_ocr">PDF (OCR)</string>
 

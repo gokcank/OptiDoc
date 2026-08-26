@@ -39,7 +39,7 @@
     <string name="feature_scan">Belgelerini yüksek kalitede tara</string>
     <string name="feature_ocr">Fotoğraflardaki metinleri çıkar (OCR)</string>
     <string name="feature_export">Anında PDF veya TXT olarak paylaş</string>
-    <string name="selected">seçili</string>
+    <string name="item_selected">seçili</string>
     <string name="format_txt_ocr">TXT (OCR)</string>
     <string name="format_pdf_ocr">PDF (OCR)</string>
 

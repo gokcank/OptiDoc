@@ -86,7 +86,7 @@ fun HomeScreen(
                     val allIds = (uiState as? HomeUiState.Success)?.documents?.map { it.id }.orEmpty()
                     val allSelected = selectedIds.containsAll(allIds) && allIds.isNotEmpty()
                     CenterAlignedTopAppBar(
-                        title = { Text("${selectedIds.size} ${stringResource(R.string.selected)}", style = MaterialTheme.typography.titleMedium) },
+                        title = { Text("${selectedIds.size} ${stringResource(R.string.item_selected)}", style = MaterialTheme.typography.titleMedium) },
                         navigationIcon = {
                             IconButton(onClick = { exitSelection() }) {
                                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_selection))
@@ -733,7 +733,7 @@ private fun DocumentCard(
             AnimatedVisibility(visible = isSelected) {
                 Icon(
                     imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = stringResource(R.string.selected),
+                    contentDescription = stringResource(R.string.item_selected),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(24.dp)
