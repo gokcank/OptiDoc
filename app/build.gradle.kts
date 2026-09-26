@@ -113,7 +113,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
@@ -129,7 +129,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
-    compileOnly("com.google.errorprone:error_prone_annotations:2.26.1")
+    compileOnly(libs.errorprone.annotations)
 
     // ---------- Room ----------
     implementation(libs.room.runtime)
@@ -150,7 +150,7 @@ dependencies {
     implementation(libs.coil.compose)
 
     // ---------- AdMob ----------
-    implementation("com.google.android.gms:play-services-ads:23.6.0")
+    implementation(libs.play.services.ads)
 
     // ---------- Test ----------
     testImplementation(libs.junit)
