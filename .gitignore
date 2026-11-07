@@ -37,3 +37,6 @@ scratch_list.md
 scratch*.md
 AI_HANDOFF.md
 OptiDoc Konuşma Geçmişi.md
+
+# Local AI tool settings
+.claude/settings.local.json
