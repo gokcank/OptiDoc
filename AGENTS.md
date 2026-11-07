@@ -42,6 +42,7 @@ signatures, watermarks, export to PDF/TXT/JPEG. English + Turkish.
 - v1.3.1 (`versionCode = 7`, 2026-08-26). One local commit (version catalog migration, 2026-09-26) not yet pushed.
 
 ## Open items
+- Check what the release build does without signing values (not verified); it must not break.
 - Backlog ideas, only on request: ID-card mode, PDF compression, encrypted vault, QR/barcode scanner.
 
 ## More context
