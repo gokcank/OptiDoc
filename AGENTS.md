@@ -39,6 +39,7 @@ signatures, watermarks, export to PDF/TXT/JPEG. English + Turkish.
 - Every user-visible string in both `values/strings.xml` and `values-tr/strings.xml`.
 
 ## Status (as of 2026-11-07)
+- Project status: **paused** (set 2026-11-18; source of truth: the brain page).
 - v1.3.1 (`versionCode = 7`, 2026-08-26). One local commit (version catalog migration, 2026-09-26) not yet pushed.
 
 ## Open items
